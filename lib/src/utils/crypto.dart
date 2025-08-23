@@ -3,6 +3,7 @@ import 'dart:math';
 import 'dart:typed_data';
 import 'package:crypto/crypto.dart';
 import 'package:pointycastle/export.dart';
+import 'package:asn1lib/asn1lib.dart';
 
 class CryptoHelper {
   static const String iv = '0102030405060708';
@@ -54,6 +55,7 @@ MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDgtQn2JZ34ZC28NWYpAUd98iZ37BUrX/aKzmFbt7cl
       encryptedBytes = _hexToBytes(ciphertext);
     }
 
+    // JavaScript版本始终使用ECB模式进行解密
     final cipher = ECBBlockCipher(AESEngine());
     final params = KeyParameter(keyBytes);
     
@@ -66,12 +68,8 @@ MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDgtQn2JZ34ZC28NWYpAUd98iZ37BUrX/aKzmFbt7cl
 
   /// RSA加密
   static String _rsaEncrypt(String text, String publicKeyStr) {
-    // 使用从原项目提取的正确模数和指数
-    final modulus = BigInt.parse(
-      '157794750267131502212476817800345498121872778333338974742401153102536627753526253991370180629076664791894775335978549868031942539786603299419807860772432806427833685472618792592200595694346872951301770558076513534925959016749053613808246968063851641659421666292583491302576850012481721883253165867073016432307');
-    final exponent = BigInt.from(65537);
-    
-    final rsaPublicKey = RSAPublicKey(modulus, exponent);
+    // 解析PEM格式的公钥
+    final rsaPublicKey = _parsePublicKeyFromPem(publicKeyStr);
     
     // 执行RSA加密（无填充，对应原项目的'NONE'）
     final cipher = RSAEngine();
@@ -81,6 +79,37 @@ MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDgtQn2JZ34ZC28NWYpAUd98iZ37BUrX/aKzmFbt7cl
     final encrypted = cipher.process(textBytes);
     
     return _bytesToHex(encrypted);
+  }
+
+  /// 从PEM格式解析RSA公钥
+  static RSAPublicKey _parsePublicKeyFromPem(String pemString) {
+    // 移除PEM头尾和换行符
+    final keyData = pemString
+        .replaceAll('-----BEGIN PUBLIC KEY-----', '')
+        .replaceAll('-----END PUBLIC KEY-----', '')
+        .replaceAll('\n', '')
+        .replaceAll('\r', '')
+        .trim();
+    
+    // Base64解码
+    final keyBytes = base64.decode(keyData);
+    
+    // 使用ASN1解析器解析DER格式的公钥
+    final asn1Parser = ASN1Parser(keyBytes);
+    final topLevelSeq = asn1Parser.nextObject() as ASN1Sequence;
+    
+    // 获取公钥位串
+    final publicKeyBitString = topLevelSeq.elements[1] as ASN1BitString;
+    
+    // 解析公钥位串中的RSA公钥
+    final publicKeyBytes = publicKeyBitString.contentBytes();
+    final publicKeyParser = ASN1Parser(publicKeyBytes);
+    final publicKeySeq = publicKeyParser.nextObject() as ASN1Sequence;
+    
+    final modulus = (publicKeySeq.elements[0] as ASN1Integer).valueAsBigInteger;
+    final exponent = (publicKeySeq.elements[1] as ASN1Integer).valueAsBigInteger;
+    
+    return RSAPublicKey(modulus, exponent);
   }
 
   /// Web API加密
@@ -133,7 +162,7 @@ MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDgtQn2JZ34ZC28NWYpAUd98iZ37BUrX/aKzmFbt7cl
   }
 
   /// EAPI请求解密
-  static Map<String, dynamic> eapiReqDecrypt(String encryptedParams) {
+  static Map<String, dynamic>? eapiReqDecrypt(String encryptedParams) {
     final decryptedData = aesDecrypt(encryptedParams, eapiKey, '', format: 'hex');
     final regex = RegExp(r'(.*?)-36cd479b6b5-(.*?)-36cd479b6b5-(.*)');
     final match = regex.firstMatch(decryptedData);
@@ -141,16 +170,20 @@ MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDgtQn2JZ34ZC28NWYpAUd98iZ37BUrX/aKzmFbt7cl
     if (match != null) {
       final url = match.group(1)!;
       final data = jsonDecode(match.group(2)!);
-      final md5Hash = match.group(3)!;
       
       return {
         'url': url,
         'data': data,
-        'md5': md5Hash,
       };
     }
     
-    throw Exception('Failed to decrypt EAPI request');
+    // 如果没有匹配到，返回null
+    return null;
+  }
+
+  /// 通用解密函数
+  static String decrypt(String cipher) {
+    return aesDecrypt(cipher, eapiKey, '', format: 'hex');
   }
 
   /// 生成随机密钥
@@ -158,7 +191,8 @@ MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDgtQn2JZ34ZC28NWYpAUd98iZ37BUrX/aKzmFbt7cl
     final random = Random();
     final buffer = StringBuffer();
     for (int i = 0; i < 16; i++) {
-      buffer.write(base62[random.nextInt(base62.length)]);
+      // 使用Math.round(Math.random() * 61)的等价实现
+      buffer.write(base62[(random.nextDouble() * 62).round() % 62]);
     }
     return buffer.toString();
   }

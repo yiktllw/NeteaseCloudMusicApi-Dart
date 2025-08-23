@@ -49,7 +49,7 @@ class RequestHelper {
   static const String domain = 'https://music.163.com';
   static const String apiDomain = 'https://interface.music.163.com';
   
-  static String? anonymousToken;
+  static String? anonymousToken = ''; // 初始化为空字符串，与原项目保持一致
   static String? globalDeviceId;
   static String? globalCnIp;
 
@@ -87,20 +87,21 @@ class RequestHelper {
       final nuid = _generateRandomString(32);
       final os = osMap[cookie['os']] ?? osMap['iphone']!;
       
-      // 合并默认cookie和传入的cookie
+      // 完全按照原JS项目的逻辑：先复制原cookie，然后用默认值填充缺失项
+      final originalCookie = Map<String, String>.from(cookie);
       cookie = {
-        '__remember_me': 'true',
-        'ntes_kaola_ad': '1',
-        '_ntes_nuid': cookie['_ntes_nuid'] ?? nuid,
-        '_ntes_nnid': cookie['_ntes_nnid'] ?? '$nuid,${DateTime.now().millisecondsSinceEpoch}',
-        'WNMCID': cookie['WNMCID'] ?? Utils.generateDeviceId(),
-        'WEVNSM': cookie['WEVNSM'] ?? '1.0.0',
-        'osver': cookie['osver'] ?? os['osver']!,
-        'deviceId': cookie['deviceId'] ?? globalDeviceId ?? '',
-        'os': cookie['os'] ?? os['os']!,
-        'channel': cookie['channel'] ?? os['channel']!,
-        'appver': cookie['appver'] ?? os['appver']!,
-        ...cookie, // 传入的cookie会覆盖默认值
+        ...originalCookie,
+        '__remember_me': originalCookie['__remember_me'] ?? 'true',
+        'ntes_kaola_ad': originalCookie['ntes_kaola_ad'] ?? '1',
+        '_ntes_nuid': originalCookie['_ntes_nuid'] ?? nuid,
+        '_ntes_nnid': originalCookie['_ntes_nnid'] ?? '$nuid,${DateTime.now().millisecondsSinceEpoch}',
+        'WNMCID': originalCookie['WNMCID'] ?? Utils.generateDeviceId(),
+        'WEVNSM': originalCookie['WEVNSM'] ?? '1.0.0',
+        'osver': originalCookie['osver'] ?? os['osver']!,
+        'deviceId': originalCookie['deviceId'] ?? globalDeviceId ?? '',
+        'os': originalCookie['os'] ?? os['os']!,
+        'channel': originalCookie['channel'] ?? os['channel']!,
+        'appver': originalCookie['appver'] ?? os['appver']!,
       };
 
       if (!uri.contains('login')) {
@@ -167,7 +168,7 @@ class RequestHelper {
 
         // 重新设置Cookie头，覆盖之前的设置
         headers['Cookie'] = header.entries
-            .map((entry) => '${Uri.encodeComponent(entry.key)}=${Uri.encodeComponent(entry.value)}')
+            .map((entry) => '${entry.key}=${entry.value}')
             .join('; ');
         headers['User-Agent'] = options.ua ?? chooseUserAgent('api', uaType: 'iphone');
 

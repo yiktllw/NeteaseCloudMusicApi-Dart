@@ -47,7 +47,7 @@ class Utils {
   /// Cookie对象转字符串
   static String cookieObjToString(Map<String, String> cookie) {
     return cookie.entries
-        .map((entry) => '${Uri.encodeComponent(entry.key)}=${Uri.encodeComponent(entry.value)}')
+        .map((entry) => '${entry.key}=${entry.value}')
         .join('; ');
   }
 
