@@ -2,6 +2,9 @@
 
 这是一个基于 Dart 语言的网易云音乐 API 实现，转换自原始的 Node.js 版本 [NeteaseCloudMusicApi](https://github.com/Binaryify/NeteaseCloudMusicApi)。
 
+> **🤖 AI 转写说明**  
+> 本项目由 **GitHub Copilot** 从原始的 JavaScript/Node.js 版本转写为 Dart 版本。
+
 ## 特性
 
 - � **直接API调用**：无需启动服务器，直接调用API方法
