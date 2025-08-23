@@ -3,7 +3,15 @@
 
 import 'module_registry.dart';
 import '../modules/login_cellphone.dart';
-import '../modules/playlist.dart';
+import '../modules/login_qr_check.dart';
+import '../modules/login_qr_create.dart';
+import '../modules/login_qr_key.dart';
+import '../modules/login_refresh.dart';
+import '../modules/login_status.dart';
+import '../modules/logout.dart';
+import '../modules/personalized.dart';
+import '../modules/playlist_detail.dart';
+import '../modules/recommend_songs.dart';
 import '../modules/search.dart';
 import '../modules/song_detail.dart';
 import '../modules/song_url_v1.dart';
@@ -20,11 +28,17 @@ class AutoRegister {
   static void registerAllModules() {
     if (_registered) return;
     
-    print('正在注册 11 个API模块...');
+    print('正在注册 17 个API模块...');
     
     ModuleRegistry.register('loginCellphone', loginCellphone);
-    ModuleRegistry.register('playlistDetail', playlistDetail);
+    ModuleRegistry.register('loginQrCheck', loginQrCheck);
+    ModuleRegistry.register('loginQrCreate', loginQrCreate);
+    ModuleRegistry.register('loginQrKey', loginQrKey);
+    ModuleRegistry.register('loginRefresh', loginRefresh);
+    ModuleRegistry.register('loginStatus', loginStatus);
+    ModuleRegistry.register('logout', logout);
     ModuleRegistry.register('personalized', personalized);
+    ModuleRegistry.register('playlistDetail', playlistDetail);
     ModuleRegistry.register('recommendSongs', recommendSongs);
     ModuleRegistry.register('search', search);
     ModuleRegistry.register('songDetail', songDetail);
@@ -42,8 +56,14 @@ class AutoRegister {
   static List<String> getRegisteredModuleNames() {
     return [
       'loginCellphone',
-      'playlistDetail',
+      'loginQrCheck',
+      'loginQrCreate',
+      'loginQrKey',
+      'loginRefresh',
+      'loginStatus',
+      'logout',
       'personalized',
+      'playlistDetail',
       'recommendSongs',
       'search',
       'songDetail',
@@ -56,5 +76,5 @@ class AutoRegister {
   }
   
   /// 获取模块总数
-  static int getModuleCount() => 11;
+  static int getModuleCount() => 17;
 }

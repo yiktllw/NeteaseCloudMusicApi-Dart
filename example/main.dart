@@ -1,4 +1,6 @@
-import '../lib/src/netease_cloud_music_api_final.dart';
+// ignore_for_file: avoid_print
+
+import 'package:netease_cloud_music_api/src/netease_cloud_music_api_final.dart';
 import 'dart:io';
 
 void main() async {
