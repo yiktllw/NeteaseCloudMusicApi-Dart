@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:math';
 import 'crypto.dart';
 import 'utils.dart';
+import 'apicache.dart';
 
 class RequestHelper {
   static const Map<String, Map<String, String>> osMap = {
@@ -58,8 +59,30 @@ class RequestHelper {
     return userAgentMap[crypto]?[uaType] ?? '';
   }
 
-  /// 创建请求
+  /// 创建请求（带2分钟缓存，对应原项目配置）
   static Future<Map<String, dynamic>> createRequest(
+    String uri,
+    Map<String, dynamic> data,
+    RequestOptions options,
+  ) async {
+    // 构建请求信息，用于缓存键生成
+    final requestInfo = {
+      'hostname': uri.startsWith('/weapi/') ? 'music.163.com' : 'interface.music.163.com',
+      'url': uri + jsonEncode(data),
+      'cookies': options.cookie ?? {},
+    };
+
+    // 使用缓存中间件，对应原项目的 cache('2 minutes', toggle)
+    return await apiCache.middleware(
+      '2 minutes',
+      (_, response) => response['status'] == 200, // 只缓存状态码200的响应
+      () => _executeRequest(uri, data, options),
+      requestInfo,
+    );
+  }
+
+  /// 执行实际的HTTP请求
+  static Future<Map<String, dynamic>> _executeRequest(
     String uri,
     Map<String, dynamic> data,
     RequestOptions options,

@@ -2,6 +2,7 @@ import 'utils/request.dart';
 import 'utils/utils.dart';
 import 'utils/module_registry.dart';
 import 'utils/auto_register.dart';
+import 'utils/api_constants.dart';
 import 'dart:convert';
 import 'package:crypto/crypto.dart';
 
@@ -93,52 +94,16 @@ class NeteaseCloudMusicApiFinal {
     return await ModuleRegistry.call(moduleName, params, _request);
   }
 
-  /// 语法糖方法 - 保持便利性
-  Future<Map<String, dynamic>> userDetail({required String uid, String? cookie}) =>
-      call('userDetail', {'uid': uid, 'cookie': cookie});
-
-  Future<Map<String, dynamic>> playlistDetail({required String id, String? cookie}) =>
-      call('playlistDetail', {'id': id, 'cookie': cookie});
-
-  Future<Map<String, dynamic>> personalized({int limit = 30, String? cookie}) =>
-      call('personalized', {'limit': limit, 'cookie': cookie});
-
-  Future<Map<String, dynamic>> recommendSongs({String? cookie}) =>
-      call('recommendSongs', {'cookie': cookie});
-
-  Future<Map<String, dynamic>> search({required String keywords, int type = 1, int limit = 30, int offset = 0, String? cookie}) =>
-      call('search', {'keywords': keywords, 'type': type, 'limit': limit, 'offset': offset, 'cookie': cookie});
-
-  Future<Map<String, dynamic>> songDetail({required String ids, String? cookie}) =>
-      call('songDetail', {'ids': ids, 'cookie': cookie});
-
-  Future<Map<String, dynamic>> songUrlV1({required String id, String level = 'standard', String? cookie}) =>
-      call('songUrlV1', {'id': id, 'level': level, 'cookie': cookie});
-
-  Future<Map<String, dynamic>> loginCellphone({
-    required String phone,
-    String? password,
-    String? md5Password,
-    String? captcha,
-    String countrycode = '86',
-    String? cookie,
-  }) => call('loginCellphone', {
-    'phone': phone,
-    'password': password,
-    'md5_password': md5Password,
-    'captcha': captcha,
-    'countrycode': countrycode,
-    'cookie': cookie,
-  });
-
-  Future<Map<String, dynamic>> userPlaylist({required String uid, int limit = 30, int offset = 0, String? cookie}) =>
-      call('userPlaylist', {'uid': uid, 'limit': limit, 'offset': offset, 'cookie': cookie});
-
-  Future<Map<String, dynamic>> userRecord({required String uid, int type = 0, String? cookie}) =>
-      call('userRecord', {'uid': uid, 'type': type, 'cookie': cookie});
-
-  Future<Map<String, dynamic>> songWikiSummary({required String id, String? cookie}) =>
-      call('songWikiSummary', {'id': id, 'cookie': cookie});
+  /// 类型安全的API调用器 - 提供完整的IDE支持
+  /// 
+  /// 使用方式：
+  /// ```dart
+  /// // 有完整参数提示和类型检查
+  /// await api.api.playlistDetail(id: '123', s: '8');
+  /// await api.api.search(keywords: '周杰伦', type: 1, limit: 50);
+  /// await api.api.userDetail(uid: '12345');
+  /// ```
+  ApiCaller get api => ApiCaller(call);
 
   /// 私有请求方法
   Future<Map<String, dynamic>> _request(

@@ -2,7 +2,6 @@
 // 请勿手动编辑此文件，运行 tools/auto_register_modules.dart 重新生成
 
 import 'module_registry.dart';
-import '../modules/login_cellphone.dart';
 import '../modules/login_qr_check.dart';
 import '../modules/login_qr_create.dart';
 import '../modules/login_qr_key.dart';
@@ -28,9 +27,6 @@ class AutoRegister {
   static void registerAllModules() {
     if (_registered) return;
     
-    print('正在注册 17 个API模块...');
-    
-    ModuleRegistry.register('loginCellphone', loginCellphone);
     ModuleRegistry.register('loginQrCheck', loginQrCheck);
     ModuleRegistry.register('loginQrCreate', loginQrCreate);
     ModuleRegistry.register('loginQrKey', loginQrKey);
@@ -49,13 +45,11 @@ class AutoRegister {
     ModuleRegistry.register('userRecord', userRecord);
     
     _registered = true;
-    print('✅ 所有模块注册完成');
   }
   
   /// 获取所有已注册的模块名称
   static List<String> getRegisteredModuleNames() {
     return [
-      'loginCellphone',
       'loginQrCheck',
       'loginQrCreate',
       'loginQrKey',
@@ -76,5 +70,5 @@ class AutoRegister {
   }
   
   /// 获取模块总数
-  static int getModuleCount() => 17;
+  static int getModuleCount() => 16;
 }

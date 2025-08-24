@@ -3,6 +3,8 @@
 import 'package:netease_cloud_music_api/src/netease_cloud_music_api_final.dart';
 import 'dart:io';
 
+import 'package:netease_cloud_music_api/src/utils/api_constants.dart';
+
 void main() async {
   print('=== 网易云音乐API Dart版本 - 使用示例 ===\n');
   
@@ -23,7 +25,7 @@ void main() async {
   try {
     // 1. 搜索歌曲
     print('🎵 搜索 "周杰伦" 的歌曲...');
-    var searchResult = await api.search(keywords: '周杰伦', type: 1, limit: 3);
+    var searchResult = await api.call(ApiModules.search, {'keywords': '周杰伦', 'type': 1, 'limit': 3});
     var responseBody = searchResult['body'] as Map<String, dynamic>?;
     
     if (responseBody != null && responseBody['code'] == 200) {
@@ -42,7 +44,7 @@ void main() async {
         // 2. 获取第一首歌的详细信息
         var firstSongId = songs[0]['id'].toString();
         print('\n🎤 获取歌曲详情...');
-        var songDetailResult = await api.songDetail(ids: firstSongId);
+        var songDetailResult = await api.call(ApiModules.songDetail, ApiParams.songDetail(ids: firstSongId));
         responseBody = songDetailResult['body'] as Map<String, dynamic>?;
         
         if (responseBody != null && responseBody['code'] == 200) {
@@ -59,7 +61,7 @@ void main() async {
         
         // 3. 获取歌曲播放链接
         print('\n🔗 获取播放链接...');
-        var urlResult = await api.songUrlV1(id: firstSongId, level: 'standard');
+        var urlResult = await api.call(ApiModules.songUrlV1, {'id': firstSongId, 'cookie': cookie ?? ''});
         responseBody = urlResult['body'] as Map<String, dynamic>?;
         
         if (responseBody != null && responseBody['code'] == 200) {
@@ -77,7 +79,7 @@ void main() async {
     
     // 4. 获取个性化推荐
     print('\n📻 获取个性化推荐...');
-    var recommendResult = await api.personalized(limit: 5, cookie: cookie);
+    var recommendResult = await api.call(ApiModules.personalized, {'limit': 5, 'cookie': cookie});
     responseBody = recommendResult['body'] as Map<String, dynamic>?;
     
     if (responseBody != null && responseBody['code'] == 200) {
@@ -93,7 +95,7 @@ void main() async {
     
     // 5. 获取用户详情示例
     print('\n👤 获取用户详情...');
-    var userResult = await api.userDetail(uid: '32953014');
+    var userResult = await api.call(ApiModules.userDetail, {'uid': '32953014'});
     responseBody = userResult['body'] as Map<String, dynamic>?;
     
     if (responseBody != null && responseBody['code'] == 200) {
