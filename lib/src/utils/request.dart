@@ -65,10 +65,21 @@ class RequestHelper {
     Map<String, dynamic> data,
     RequestOptions options,
   ) async {
+    // 提取timestamp参数用于缓存区分，但不发送给服务器
+    final timestamp = data['timestamp'];
+    final actualData = Map<String, dynamic>.from(data);
+    actualData.remove('timestamp'); // 从实际请求数据中移除timestamp
+    
     // 构建请求信息，用于缓存键生成
+    // 如果有timestamp，将其包含在URL中以影响缓存键
+    String urlForCache = uri + jsonEncode(actualData);
+    if (timestamp != null) {
+      urlForCache += '_ts_$timestamp';
+    }
+    
     final requestInfo = {
       'hostname': uri.startsWith('/weapi/') ? 'music.163.com' : 'interface.music.163.com',
-      'url': uri + jsonEncode(data),
+      'url': urlForCache,
       'cookies': options.cookie ?? {},
     };
 
@@ -76,7 +87,7 @@ class RequestHelper {
     return await apiCache.middleware(
       '2 minutes',
       (_, response) => response['status'] == 200, // 只缓存状态码200的响应
-      () => _executeRequest(uri, data, options),
+      () => _executeRequest(uri, actualData, options), // 使用不包含timestamp的数据
       requestInfo,
     );
   }
@@ -87,6 +98,9 @@ class RequestHelper {
     Map<String, dynamic> data,
     RequestOptions options,
   ) async {
+    print('[REQUEST] 开始执行请求: $uri');
+    print('[REQUEST] 请求参数: $data');
+    
     final headers = <String, String>{
       ...?options.headers,
     };
@@ -222,6 +236,9 @@ class RequestHelper {
     RequestOptions options,
   ) async {
     try {
+      print('[HTTP] 正在发送HTTP请求到: $url');
+      print('[HTTP] 请求数据: $data');
+      
       final client = HttpClient();
       final uri = Uri.parse(url);
       final request = await client.postUrl(uri);
@@ -239,8 +256,10 @@ class RequestHelper {
           .join('&');
       request.write(body);
 
+      print('[HTTP] 发送请求中...');
       final response = await request.close();
       final responseBody = await response.transform(utf8.decoder).join();
+      print('[HTTP] 收到响应，状态码: ${response.statusCode}');
 
       final cookies = response.headers['set-cookie']
           ?.map((cookie) => cookie.replaceAll(RegExp(r'\s*Domain=[^(;|$)]+;*'), ''))

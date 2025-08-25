@@ -8,7 +8,7 @@ class ApiCache {
   final MemoryCache _memCache = MemoryCache();
   
   final Map<String, dynamic> _globalOptions = {
-    'debug': false,
+    'debug': true, // 启用调试日志
     'defaultDuration': 3600000, // 1小时，但会被具体配置覆盖
     'enabled': true,
     'headerBlacklist': <String>[],
@@ -140,12 +140,19 @@ class ApiCache {
     final cached = _memCache.getValue(key);
     if (cached != null) {
       _debug('sending cached version of $key');
-      return cached as Map<String, dynamic>;
+      // 从缓存对象中提取实际的数据
+      final cacheObject = cached as Map<String, dynamic>;
+      final cachedResult = Map<String, dynamic>.from(cacheObject['data'] as Map<String, dynamic>);
+      cachedResult['_fromCache'] = true; // 添加缓存标识
+      return cachedResult;
     }
 
     // 缓存未命中，执行请求
     _debug('cache miss for $key');
+    print('[API] 缓存未命中，正在发送实际HTTP请求...');
     final result = await next();
+    result['_fromCache'] = false; // 标识非缓存结果
+    print('[API] HTTP请求完成，状态码: ${result['status']}');
     
     // 缓存响应（只缓存状态码200的响应）
     if (_shouldCacheResponse(request, result, toggle)) {
@@ -167,7 +174,16 @@ class ApiCache {
     final url = request['url'] ?? '';
     final cookies = request['cookies'] ?? {};
     
-    return hostname + url + jsonEncode(cookies);
+    print('[CACHE] 缓存键生成 - hostname: $hostname');
+    print('[CACHE] 缓存键生成 - url: $url');
+    print('[CACHE] 缓存键生成 - cookies: $cookies');
+    print('[CACHE] 缓存键生成 - request 完整内容: $request');
+    
+    // 构建缓存键 - URL中已经包含了timestamp信息
+    String baseKey = hostname + url + jsonEncode(cookies);
+    
+    print('[CACHE] 生成的缓存键: $baseKey');
+    return baseKey;
   }
 
   /// 清除缓存

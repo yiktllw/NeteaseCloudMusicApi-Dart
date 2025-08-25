@@ -263,15 +263,19 @@ String _generateParamMethod(ModuleInfo module) {
     final isRequired = module.requiredParameters.contains(param);
     final type = _getParameterType(param);
     return isRequired ? 'required $type $param' : '$type? $param';
-  }).join(', ');
+  }).toList();
   
-  final paramMap = module.parameters.map((param) => "    '$param': $param,").join('\n');
+  // 添加通用的timestamp参数
+  paramList.add('String? timestamp');
+  
+  final paramMap = module.parameters.map((param) => "    '$param': $param,").toList();
+  paramMap.add("    'timestamp': timestamp,");
   
   return '''  /// ${module.description ?? module.name} 参数
   static Map<String, dynamic> ${module.name}({
-    $paramList,
+    ${paramList.join(', ')},
   }) => {
-$paramMap
+${paramMap.join('\n')}
   };''';
 }
 
@@ -281,15 +285,19 @@ String _generateCallerMethod(ModuleInfo module) {
     final isRequired = module.requiredParameters.contains(param);
     final type = _getParameterType(param);
     return isRequired ? 'required $type $param' : '$type? $param';
-  }).join(',\n    ');
+  }).toList();
   
-  final paramArgs = module.parameters.map((param) => '$param: $param').join(',\n    ');
+  // 添加通用的timestamp参数
+  paramList.add('String? timestamp');
+  
+  final paramArgs = module.parameters.map((param) => '$param: $param').toList();
+  paramArgs.add('timestamp: timestamp');
   
   return '''  /// ${module.description ?? module.name}
   Future<Map<String, dynamic>> ${module.name}({
-    $paramList,
+    ${paramList.join(',\n    ')},
   }) => _call(ApiModules.${module.name}, ApiParams.${module.name}(
-    $paramArgs,
+    ${paramArgs.join(',\n    ')},
   ));''';
 }
 

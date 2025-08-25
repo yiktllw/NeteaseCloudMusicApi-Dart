@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print
+
 import 'utils/request.dart';
 import 'utils/utils.dart';
 import 'utils/module_registry.dart';
@@ -95,24 +97,45 @@ class NeteaseCloudMusicApiFinal {
   Future<Map<String, dynamic>> call(String moduleName, Map<String, dynamic> params) async {
     await _ensureInitialized();
     
-    // 构建请求路径用于日志
+    // 提取并处理timestamp参数 - 在这里统一处理，所有模块都透明支持
+    final originalParams = Map<String, dynamic>.from(params);
+    final timestamp = originalParams.remove('timestamp'); // 从传递给模块的参数中移除
+    
+    // 构建请求路径用于日志（包含timestamp用于日志追踪）
     String logPath = '/$moduleName';
-    if (params.isNotEmpty) {
+    if (params.isNotEmpty || timestamp != null) {
       final paramsList = params.entries
           .where((e) => e.key != 'cookie') // 不在日志中显示敏感信息
           .map((e) => '${e.key}=${e.value}')
           .toList();
+      if (timestamp != null) {
+        paramsList.add('timestamp=$timestamp');
+      }
       if (paramsList.isNotEmpty) {
         logPath += '?${paramsList.join('&')}';
       }
     }
     
     try {
-      final result = await ModuleRegistry.call(moduleName, params, _request);
+      final result = await ModuleRegistry.call(moduleName, originalParams, (uri, data, options) {
+        // 如果有timestamp，将其添加到请求数据中，让createRequest处理缓存区分
+        if (timestamp != null) {
+          data = Map<String, dynamic>.from(data);
+          data['timestamp'] = timestamp;
+        }
+        return _request(uri, data, options);
+      });
       
-      // 记录成功日志
+      // 检查是否来自缓存并记录相应日志
       if (enableApiLogging) {
-        print('[SUCCESS] $logPath');
+        final isFromCache = result['_fromCache'] == true;
+        final prefix = isFromCache ? '[CACHE]' : '[SUCCESS]';
+        print('$prefix $logPath');
+      }
+      
+      // 移除内部标识，避免暴露给外部
+      if (result is Map<String, dynamic>) {
+        result.remove('_fromCache');
       }
       
       return result;

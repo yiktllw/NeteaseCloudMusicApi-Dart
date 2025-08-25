@@ -45,119 +45,135 @@ class ApiModules {
 class ApiParams {
   /// 二维码登录检测 参数
   static Map<String, dynamic> loginQrCheck({
-    required String key, String? cookie,
+    required String key, String? cookie, String? timestamp,
   }) => {
     'key': key,
     'cookie': cookie,
+    'timestamp': timestamp,
   };
   /// 二维码登录创建 参数
   static Map<String, dynamic> loginQrCreate({
-    required String key, required String qrimg, String? cookie,
+    required String key, required String qrimg, String? cookie, String? timestamp,
   }) => {
     'key': key,
     'qrimg': qrimg,
     'cookie': cookie,
+    'timestamp': timestamp,
   };
   /// 二维码登录 key 生成 参数
   static Map<String, dynamic> loginQrKey({
-    String? cookie,
+    String? cookie, String? timestamp,
   }) => {
     'cookie': cookie,
+    'timestamp': timestamp,
   };
   /// 登录刷新 参数
   static Map<String, dynamic> loginRefresh({
-    String? cookie,
+    String? cookie, String? timestamp,
   }) => {
     'cookie': cookie,
+    'timestamp': timestamp,
   };
   /// 登录状态 参数
   static Map<String, dynamic> loginStatus({
-    String? cookie,
+    String? cookie, String? timestamp,
   }) => {
     'cookie': cookie,
+    'timestamp': timestamp,
   };
   /// 退出登录 参数
   static Map<String, dynamic> logout({
-    String? cookie,
+    String? cookie, String? timestamp,
   }) => {
     'cookie': cookie,
+    'timestamp': timestamp,
   };
   /// 推荐歌单 参数
   static Map<String, dynamic> personalized({
-    int? limit, String? cookie,
+    int? limit, String? cookie, String? timestamp,
   }) => {
     'limit': limit,
     'cookie': cookie,
+    'timestamp': timestamp,
   };
   /// 歌单详情 参数
   static Map<String, dynamic> playlistDetail({
-    required String id, String? s, String? cookie,
+    required String id, String? s, String? cookie, String? timestamp,
   }) => {
     'id': id,
     's': s,
     'cookie': cookie,
+    'timestamp': timestamp,
   };
   /// 每日推荐歌曲 参数
   static Map<String, dynamic> recommendSongs({
-    String? cookie,
+    String? cookie, String? timestamp,
   }) => {
     'cookie': cookie,
+    'timestamp': timestamp,
   };
   /// 搜索 参数
   static Map<String, dynamic> search({
-    int? type, required String keywords, int? limit, int? offset, String? cookie,
+    int? type, required String keywords, int? limit, int? offset, String? cookie, String? timestamp,
   }) => {
     'type': type,
     'keywords': keywords,
     'limit': limit,
     'offset': offset,
     'cookie': cookie,
+    'timestamp': timestamp,
   };
   /// 歌曲详情 参数
   static Map<String, dynamic> songDetail({
-    required String ids, String? cookie,
+    required String ids, String? cookie, String? timestamp,
   }) => {
     'ids': ids,
     'cookie': cookie,
+    'timestamp': timestamp,
   };
   /// 而是采用 standard, exhigh, lossless, hires, jyeffect(高清环绕声), sky(沉浸环绕声), jymaster(超清母带) 进行音质判断 参数
   static Map<String, dynamic> songUrlV1({
-    required String id, required String level, String? cookie,
+    required String id, required String level, String? cookie, String? timestamp,
   }) => {
     'id': id,
     'level': level,
     'cookie': cookie,
+    'timestamp': timestamp,
   };
   /// 音乐百科基础信息 参数
   static Map<String, dynamic> songWikiSummary({
-    required String id, String? cookie,
+    required String id, String? cookie, String? timestamp,
   }) => {
     'id': id,
     'cookie': cookie,
+    'timestamp': timestamp,
   };
   /// 用户详情 参数
   static Map<String, dynamic> userDetail({
-    required String uid, String? cookie,
+    required String uid, String? cookie, String? timestamp,
   }) => {
     'uid': uid,
     'cookie': cookie,
+    'timestamp': timestamp,
   };
   /// 用户歌单 参数
   static Map<String, dynamic> userPlaylist({
-    String? uid, int? limit, int? offset, String? cookie,
+    String? uid, int? limit, int? offset, String? cookie, String? timestamp,
   }) => {
     'uid': uid,
     'limit': limit,
     'offset': offset,
     'cookie': cookie,
+    'timestamp': timestamp,
   };
   /// 用户听歌记录 参数
   static Map<String, dynamic> userRecord({
-    String? uid, int? type, String? cookie,
+    String? uid, int? type, String? cookie, String? timestamp,
   }) => {
     'uid': uid,
     'type': type,
     'cookie': cookie,
+    'timestamp': timestamp,
   };
 }
 
@@ -173,67 +189,85 @@ class ApiCaller {
   Future<Map<String, dynamic>> loginQrCheck({
     required String key,
     String? cookie,
+    String? timestamp,
   }) => _call(ApiModules.loginQrCheck, ApiParams.loginQrCheck(
     key: key,
     cookie: cookie,
+    timestamp: timestamp,
   ));
   /// 二维码登录创建
   Future<Map<String, dynamic>> loginQrCreate({
     required String key,
     required String qrimg,
     String? cookie,
+    String? timestamp,
   }) => _call(ApiModules.loginQrCreate, ApiParams.loginQrCreate(
     key: key,
     qrimg: qrimg,
     cookie: cookie,
+    timestamp: timestamp,
   ));
   /// 二维码登录 key 生成
   Future<Map<String, dynamic>> loginQrKey({
     String? cookie,
+    String? timestamp,
   }) => _call(ApiModules.loginQrKey, ApiParams.loginQrKey(
     cookie: cookie,
+    timestamp: timestamp,
   ));
   /// 登录刷新
   Future<Map<String, dynamic>> loginRefresh({
     String? cookie,
+    String? timestamp,
   }) => _call(ApiModules.loginRefresh, ApiParams.loginRefresh(
     cookie: cookie,
+    timestamp: timestamp,
   ));
   /// 登录状态
   Future<Map<String, dynamic>> loginStatus({
     String? cookie,
+    String? timestamp,
   }) => _call(ApiModules.loginStatus, ApiParams.loginStatus(
     cookie: cookie,
+    timestamp: timestamp,
   ));
   /// 退出登录
   Future<Map<String, dynamic>> logout({
     String? cookie,
+    String? timestamp,
   }) => _call(ApiModules.logout, ApiParams.logout(
     cookie: cookie,
+    timestamp: timestamp,
   ));
   /// 推荐歌单
   Future<Map<String, dynamic>> personalized({
     int? limit,
     String? cookie,
+    String? timestamp,
   }) => _call(ApiModules.personalized, ApiParams.personalized(
     limit: limit,
     cookie: cookie,
+    timestamp: timestamp,
   ));
   /// 歌单详情
   Future<Map<String, dynamic>> playlistDetail({
     required String id,
     String? s,
     String? cookie,
+    String? timestamp,
   }) => _call(ApiModules.playlistDetail, ApiParams.playlistDetail(
     id: id,
     s: s,
     cookie: cookie,
+    timestamp: timestamp,
   ));
   /// 每日推荐歌曲
   Future<Map<String, dynamic>> recommendSongs({
     String? cookie,
+    String? timestamp,
   }) => _call(ApiModules.recommendSongs, ApiParams.recommendSongs(
     cookie: cookie,
+    timestamp: timestamp,
   ));
   /// 搜索
   Future<Map<String, dynamic>> search({
@@ -242,46 +276,56 @@ class ApiCaller {
     int? limit,
     int? offset,
     String? cookie,
+    String? timestamp,
   }) => _call(ApiModules.search, ApiParams.search(
     type: type,
     keywords: keywords,
     limit: limit,
     offset: offset,
     cookie: cookie,
+    timestamp: timestamp,
   ));
   /// 歌曲详情
   Future<Map<String, dynamic>> songDetail({
     required String ids,
     String? cookie,
+    String? timestamp,
   }) => _call(ApiModules.songDetail, ApiParams.songDetail(
     ids: ids,
     cookie: cookie,
+    timestamp: timestamp,
   ));
   /// 而是采用 standard, exhigh, lossless, hires, jyeffect(高清环绕声), sky(沉浸环绕声), jymaster(超清母带) 进行音质判断
   Future<Map<String, dynamic>> songUrlV1({
     required String id,
     required String level,
     String? cookie,
+    String? timestamp,
   }) => _call(ApiModules.songUrlV1, ApiParams.songUrlV1(
     id: id,
     level: level,
     cookie: cookie,
+    timestamp: timestamp,
   ));
   /// 音乐百科基础信息
   Future<Map<String, dynamic>> songWikiSummary({
     required String id,
     String? cookie,
+    String? timestamp,
   }) => _call(ApiModules.songWikiSummary, ApiParams.songWikiSummary(
     id: id,
     cookie: cookie,
+    timestamp: timestamp,
   ));
   /// 用户详情
   Future<Map<String, dynamic>> userDetail({
     required String uid,
     String? cookie,
+    String? timestamp,
   }) => _call(ApiModules.userDetail, ApiParams.userDetail(
     uid: uid,
     cookie: cookie,
+    timestamp: timestamp,
   ));
   /// 用户歌单
   Future<Map<String, dynamic>> userPlaylist({
@@ -289,20 +333,24 @@ class ApiCaller {
     int? limit,
     int? offset,
     String? cookie,
+    String? timestamp,
   }) => _call(ApiModules.userPlaylist, ApiParams.userPlaylist(
     uid: uid,
     limit: limit,
     offset: offset,
     cookie: cookie,
+    timestamp: timestamp,
   ));
   /// 用户听歌记录
   Future<Map<String, dynamic>> userRecord({
     String? uid,
     int? type,
     String? cookie,
+    String? timestamp,
   }) => _call(ApiModules.userRecord, ApiParams.userRecord(
     uid: uid,
     type: type,
     cookie: cookie,
+    timestamp: timestamp,
   ));
 }

@@ -3,3 +3,6 @@ library netease_cloud_music_api;
 
 // 导出主API类 - 包含所有功能
 export 'src/netease_cloud_music_api_final.dart';
+
+// 导出API常量和参数帮助类 - 提供类型安全的调用方式
+export 'src/utils/api_constants.dart';
