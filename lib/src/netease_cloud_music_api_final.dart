@@ -12,6 +12,9 @@ class NeteaseCloudMusicApiFinal {
   late String _deviceId;
   late String _cnIp;
   bool _initialized = false;
+  
+  /// 是否启用API请求日志输出
+  static bool enableApiLogging = true;
 
   /// 构造函数
   NeteaseCloudMusicApiFinal();
@@ -91,7 +94,45 @@ class NeteaseCloudMusicApiFinal {
   /// 通用模块调用方法 - 极简版本
   Future<Map<String, dynamic>> call(String moduleName, Map<String, dynamic> params) async {
     await _ensureInitialized();
-    return await ModuleRegistry.call(moduleName, params, _request);
+    
+    // 构建请求路径用于日志
+    String logPath = '/$moduleName';
+    if (params.isNotEmpty) {
+      final paramsList = params.entries
+          .where((e) => e.key != 'cookie') // 不在日志中显示敏感信息
+          .map((e) => '${e.key}=${e.value}')
+          .toList();
+      if (paramsList.isNotEmpty) {
+        logPath += '?${paramsList.join('&')}';
+      }
+    }
+    
+    try {
+      final result = await ModuleRegistry.call(moduleName, params, _request);
+      
+      // 记录成功日志
+      if (enableApiLogging) {
+        print('[SUCCESS] $logPath');
+      }
+      
+      return result;
+    } catch (e) {
+      // 记录错误日志
+      if (enableApiLogging) {
+        print('[ERROR] $logPath - $e');
+      }
+      rethrow;
+    }
+  }
+
+  /// 设置API日志开关
+  static void setApiLogging(bool enabled) {
+    enableApiLogging = enabled;
+  }
+
+  /// 获取当前API日志开关状态
+  static bool getApiLogging() {
+    return enableApiLogging;
   }
 
   /// 类型安全的API调用器 - 提供完整的IDE支持
