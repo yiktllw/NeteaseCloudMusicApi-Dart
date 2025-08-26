@@ -36,21 +36,25 @@ class RequestHelper {
 
   static const Map<String, Map<String, String>> userAgentMap = {
     'weapi': {
-      'pc': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36 Edg/124.0.0.0',
+      'pc':
+          'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36 Edg/124.0.0.0',
     },
     'linuxapi': {
-      'linux': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.90 Safari/537.36',
+      'linux':
+          'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.90 Safari/537.36',
     },
     'api': {
-      'pc': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Safari/537.36 Chrome/91.0.4472.164 NeteaseMusicDesktop/3.0.18.203152',
-      'android': 'NeteaseMusic/9.1.65.240927161425(9001065);Dalvik/2.1.0 (Linux; U; Android 14; 23013RK75C Build/UKQ1.230804.001)',
+      'pc':
+          'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Safari/537.36 Chrome/91.0.4472.164 NeteaseMusicDesktop/3.0.18.203152',
+      'android':
+          'NeteaseMusic/9.1.65.240927161425(9001065);Dalvik/2.1.0 (Linux; U; Android 14; 23013RK75C Build/UKQ1.230804.001)',
       'iphone': 'NeteaseMusic 9.0.90/5038 (iPhone; iOS 16.2; zh_CN)',
     },
   };
 
   static const String domain = 'https://music.163.com';
   static const String apiDomain = 'https://interface.music.163.com';
-  
+
   static String? anonymousToken = ''; // 初始化为空字符串，与原项目保持一致
   static String? globalDeviceId;
   static String? globalCnIp;
@@ -70,16 +74,18 @@ class RequestHelper {
     final timestamp = data['timestamp'];
     final actualData = Map<String, dynamic>.from(data);
     actualData.remove('timestamp'); // 从实际请求数据中移除timestamp
-    
+
     // 构建请求信息，用于缓存键生成
     // 如果有timestamp，将其包含在URL中以影响缓存键
     String urlForCache = uri + jsonEncode(actualData);
     if (timestamp != null) {
       urlForCache += '_ts_$timestamp';
     }
-    
+
     final requestInfo = {
-      'hostname': uri.startsWith('/weapi/') ? 'music.163.com' : 'interface.music.163.com',
+      'hostname': uri.startsWith('/weapi/')
+          ? 'music.163.com'
+          : 'interface.music.163.com',
       'url': urlForCache,
       'cookies': options.cookie ?? {},
     };
@@ -100,8 +106,7 @@ class RequestHelper {
     RequestOptions options,
   ) async {
     ApiLogManager.info('[REQUEST]', '开始执行请求: $uri');
-    ApiLogManager.debug('[REQUEST]', '请求参数: $data');
-    
+
     final headers = <String, String>{
       ...?options.headers,
     };
@@ -115,7 +120,7 @@ class RequestHelper {
 
     // 处理Cookie
     var cookie = options.cookie ?? <String, String>{};
-    
+
     // 如果cookie是字符串，先转换为Map
     if (cookie is String) {
       cookie = Utils.cookieToJson(cookie);
@@ -124,7 +129,7 @@ class RequestHelper {
     if (cookie is Map<String, String>) {
       final nuid = _generateRandomString(32);
       final os = osMap[cookie['os']] ?? osMap['iphone']!;
-      
+
       // 完全按照原JS项目的逻辑：先复制原cookie，然后用默认值填充缺失项
       final originalCookie = Map<String, String>.from(cookie);
       cookie = {
@@ -132,7 +137,8 @@ class RequestHelper {
         '__remember_me': originalCookie['__remember_me'] ?? 'true',
         'ntes_kaola_ad': originalCookie['ntes_kaola_ad'] ?? '1',
         '_ntes_nuid': originalCookie['_ntes_nuid'] ?? nuid,
-        '_ntes_nnid': originalCookie['_ntes_nnid'] ?? '$nuid,${DateTime.now().millisecondsSinceEpoch}',
+        '_ntes_nnid': originalCookie['_ntes_nnid'] ??
+            '$nuid,${DateTime.now().millisecondsSinceEpoch}',
         'WNMCID': originalCookie['WNMCID'] ?? Utils.generateDeviceId(),
         'WEVNSM': originalCookie['WEVNSM'] ?? '1.0.0',
         'osver': originalCookie['osver'] ?? os['osver']!,
@@ -175,7 +181,8 @@ class RequestHelper {
         break;
 
       case 'linuxapi':
-        headers['User-Agent'] = options.ua ?? chooseUserAgent('linuxapi', uaType: 'linux');
+        headers['User-Agent'] =
+            options.ua ?? chooseUserAgent('linuxapi', uaType: 'linux');
         encryptData = CryptoHelper.linuxapi({
           'method': 'POST',
           'url': '$domain$uri',
@@ -194,21 +201,26 @@ class RequestHelper {
           'appver': cookie['appver'] ?? '',
           'versioncode': cookie['versioncode'] ?? '140',
           'mobilename': cookie['mobilename'] ?? '',
-          'buildver': cookie['buildver'] ?? (DateTime.now().millisecondsSinceEpoch ~/ 1000).toString(),
+          'buildver': cookie['buildver'] ??
+              (DateTime.now().millisecondsSinceEpoch ~/ 1000).toString(),
           'resolution': cookie['resolution'] ?? '1920x1080',
           '__csrf': csrfToken,
           'channel': cookie['channel'] ?? '',
-          'requestId': '${DateTime.now().millisecondsSinceEpoch}_${Random().nextInt(1000).toString().padLeft(4, '0')}',
+          'requestId':
+              '${DateTime.now().millisecondsSinceEpoch}_${Random().nextInt(1000).toString().padLeft(4, '0')}',
         };
 
-        if (cookie['MUSIC_U']?.isNotEmpty == true) header['MUSIC_U'] = cookie['MUSIC_U']!;
-        if (cookie['MUSIC_A']?.isNotEmpty == true) header['MUSIC_A'] = cookie['MUSIC_A']!;
+        if (cookie['MUSIC_U']?.isNotEmpty == true)
+          header['MUSIC_U'] = cookie['MUSIC_U']!;
+        if (cookie['MUSIC_A']?.isNotEmpty == true)
+          header['MUSIC_A'] = cookie['MUSIC_A']!;
 
         // 重新设置Cookie头，覆盖之前的设置
         headers['Cookie'] = header.entries
             .map((entry) => '${entry.key}=${entry.value}')
             .join('; ');
-        headers['User-Agent'] = options.ua ?? chooseUserAgent('api', uaType: 'iphone');
+        headers['User-Agent'] =
+            options.ua ?? chooseUserAgent('api', uaType: 'iphone');
 
         if (crypto == 'eapi') {
           data['header'] = header;
@@ -217,7 +229,8 @@ class RequestHelper {
           url = '$apiDomain/eapi/${uri.substring(5)}';
         } else {
           url = '$apiDomain$uri';
-          encryptData = data.map((key, value) => MapEntry(key, value.toString()));
+          encryptData =
+              data.map((key, value) => MapEntry(key, value.toString()));
         }
         break;
 
@@ -237,9 +250,6 @@ class RequestHelper {
     RequestOptions options,
   ) async {
     try {
-      ApiLogManager.debug('[HTTP]', '正在发送HTTP请求到: $url');
-      ApiLogManager.debug('[HTTP]', '请求数据: $data');
-      
       final client = HttpClient();
       final uri = Uri.parse(url);
       final request = await client.postUrl(uri);
@@ -253,24 +263,26 @@ class RequestHelper {
 
       // 设置请求体
       final body = data.entries
-          .map((entry) => '${Uri.encodeComponent(entry.key)}=${Uri.encodeComponent(entry.value)}')
+          .map((entry) =>
+              '${Uri.encodeComponent(entry.key)}=${Uri.encodeComponent(entry.value)}')
           .join('&');
       request.write(body);
 
-      ApiLogManager.debug('[HTTP]', '发送请求中...');
       final response = await request.close();
       final responseBody = await response.transform(utf8.decoder).join();
-      ApiLogManager.info('[HTTP]', '收到响应，状态码: ${response.statusCode}');
 
       final cookies = response.headers['set-cookie']
-          ?.map((cookie) => cookie.replaceAll(RegExp(r'\s*Domain=[^(;|$)]+;*'), ''))
-          .toList() ?? [];
+              ?.map((cookie) =>
+                  cookie.replaceAll(RegExp(r'\s*Domain=[^(;|$)]+;*'), ''))
+              .toList() ??
+          [];
 
       Map<String, dynamic> responseData;
       try {
         if (options.eR == true) {
           // EAPI解密
-          responseData = CryptoHelper.eapiResDecrypt(responseBody.toUpperCase());
+          responseData =
+              CryptoHelper.eapiResDecrypt(responseBody.toUpperCase());
         } else {
           responseData = jsonDecode(responseBody);
         }
@@ -279,11 +291,15 @@ class RequestHelper {
       }
 
       if (responseData['code'] != null) {
-        responseData['code'] = int.tryParse(responseData['code'].toString()) ?? responseData['code'];
+        responseData['code'] = int.tryParse(responseData['code'].toString()) ??
+            responseData['code'];
       }
 
       final status = responseData['code'] ?? response.statusCode;
-      final finalStatus = [201, 302, 400, 502, 800, 801, 802, 803].contains(status) ? 200 : status;
+      final finalStatus =
+          [201, 302, 400, 502, 800, 801, 802, 803].contains(status)
+              ? 200
+              : status;
 
       client.close();
 
@@ -306,11 +322,11 @@ class RequestHelper {
     const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
     final random = Random();
     final buffer = StringBuffer();
-    
+
     for (int i = 0; i < length; i++) {
       buffer.write(chars[random.nextInt(chars.length)]);
     }
-    
+
     return buffer.toString();
   }
 }
@@ -337,7 +353,8 @@ class RequestOptions {
     this.headers,
   });
 
-  factory RequestOptions.create(Map<String, dynamic> query, {String crypto = ''}) {
+  factory RequestOptions.create(Map<String, dynamic> query,
+      {String crypto = ''}) {
     return RequestOptions(
       crypto: query['crypto'] ?? crypto,
       cookie: query['cookie'],

@@ -7,6 +7,7 @@ import 'utils/auto_register.dart';
 import 'utils/api_constants.dart';
 import 'dart:convert';
 import 'package:crypto/crypto.dart';
+import 'utils/api_logger.dart';
 
 /// 网易云音乐API核心类 - 最终简化版本
 class NeteaseCloudMusicApiFinal {
@@ -14,7 +15,7 @@ class NeteaseCloudMusicApiFinal {
   late String _deviceId;
   late String _cnIp;
   bool _initialized = false;
-  
+
   /// 是否启用API请求日志输出
   static bool enableApiLogging = true;
 
@@ -32,16 +33,16 @@ class NeteaseCloudMusicApiFinal {
   Future<void> init() async {
     // 注册所有模块
     AutoRegister.registerAllModules();
-    
+
     _cnIp = Utils.generateRandomChineseIP();
     _deviceId = Utils.generateDeviceId();
-    
+
     // 设置全局变量
     RequestHelper.globalCnIp = _cnIp;
     RequestHelper.globalDeviceId = _deviceId;
-    
+
     _initialized = true;
-    
+
     try {
       final result = await registerAnonymous();
       final cookie = result['body']['cookie'];
@@ -67,40 +68,43 @@ class NeteaseCloudMusicApiFinal {
     ];
     final deviceId = deviceIds[DateTime.now().millisecond % deviceIds.length];
     final encodedId = _generateEncodedId(deviceId);
-    
+
     final data = <String, dynamic>{
       'username': encodedId,
     };
-    
-    return await _request('/api/register/anonimous', data, RequestOptions(crypto: 'weapi'));
+
+    return await _request(
+        '/api/register/anonimous', data, RequestOptions(crypto: 'weapi'));
   }
 
   /// 生成编码ID
   String _generateEncodedId(String deviceId) {
     const idXorKey = '3go8&\$8*3*3h0k(2)2';
-    
+
     String xoredString = '';
     for (int i = 0; i < deviceId.length; i++) {
-      final charCode = deviceId.codeUnitAt(i) ^ idXorKey.codeUnitAt(i % idXorKey.length);
+      final charCode =
+          deviceId.codeUnitAt(i) ^ idXorKey.codeUnitAt(i % idXorKey.length);
       xoredString += String.fromCharCode(charCode);
     }
-    
+
     final bytes = utf8.encode(xoredString);
     final digest = md5.convert(bytes);
     final hashedBase64 = base64.encode(digest.bytes);
-    
+
     final finalString = '$deviceId $hashedBase64';
     return base64.encode(utf8.encode(finalString));
   }
 
   /// 通用模块调用方法 - 极简版本
-  Future<Map<String, dynamic>> call(String moduleName, Map<String, dynamic> params) async {
+  Future<Map<String, dynamic>> call(
+      String moduleName, Map<String, dynamic> params) async {
     await _ensureInitialized();
-    
+
     // 提取并处理timestamp参数 - 在这里统一处理，所有模块都透明支持
     final originalParams = Map<String, dynamic>.from(params);
     final timestamp = originalParams.remove('timestamp'); // 从传递给模块的参数中移除
-    
+
     // 构建请求路径用于日志（包含timestamp用于日志追踪）
     String logPath = '/$moduleName';
     if (params.isNotEmpty || timestamp != null) {
@@ -115,9 +119,10 @@ class NeteaseCloudMusicApiFinal {
         logPath += '?${paramsList.join('&')}';
       }
     }
-    
+
     try {
-      final result = await ModuleRegistry.call(moduleName, originalParams, (uri, data, options) {
+      final result = await ModuleRegistry.call(moduleName, originalParams,
+          (uri, data, options) {
         // 如果有timestamp，将其添加到请求数据中，让createRequest处理缓存区分
         if (timestamp != null) {
           data = Map<String, dynamic>.from(data);
@@ -125,19 +130,19 @@ class NeteaseCloudMusicApiFinal {
         }
         return _request(uri, data, options);
       });
-      
+
       // 检查是否来自缓存并记录相应日志
       if (enableApiLogging) {
         final isFromCache = result['_fromCache'] == true;
         final prefix = isFromCache ? '[CACHE]' : '[SUCCESS]';
-        print('$prefix $logPath');
+        ApiLogManager.info(prefix, logPath);
       }
-      
+
       // 移除内部标识，避免暴露给外部
       if (result is Map<String, dynamic>) {
         result.remove('_fromCache');
       }
-      
+
       return result;
     } catch (e) {
       // 记录错误日志
@@ -159,7 +164,7 @@ class NeteaseCloudMusicApiFinal {
   }
 
   /// 类型安全的API调用器 - 提供完整的IDE支持
-  /// 
+  ///
   /// 使用方式：
   /// ```dart
   /// // 有完整参数提示和类型检查
@@ -197,6 +202,7 @@ class NeteaseCloudMusicApiFinal {
 
   // 调试和统计方法
   int getRegisteredModuleCount() => ModuleRegistry.getAllModules().length;
-  
-  List<String> getRegisteredModuleNames() => ModuleRegistry.getAllModules().keys.toList();
+
+  List<String> getRegisteredModuleNames() =>
+      ModuleRegistry.getAllModules().keys.toList();
 }

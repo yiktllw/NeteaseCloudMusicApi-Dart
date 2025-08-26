@@ -11,6 +11,7 @@ import '../modules/login_status.dart';
 import '../modules/logout.dart';
 import '../modules/personalized.dart';
 import '../modules/playlist_detail.dart';
+import '../modules/playlist_track_all.dart';
 import '../modules/recommend_songs.dart';
 import '../modules/search.dart';
 import '../modules/song_detail.dart';
@@ -24,11 +25,11 @@ import '../modules/user_record.dart';
 /// 自动注册所有API模块
 class AutoRegister {
   static bool _registered = false;
-  
+
   /// 注册所有模块
   static void registerAllModules() {
     if (_registered) return;
-    
+
     ModuleRegistry.register('albumSublist', albumSublist);
     ModuleRegistry.register('loginQrCheck', loginQrCheck);
     ModuleRegistry.register('loginQrCreate', loginQrCreate);
@@ -38,6 +39,7 @@ class AutoRegister {
     ModuleRegistry.register('logout', logout);
     ModuleRegistry.register('personalized', personalized);
     ModuleRegistry.register('playlistDetail', playlistDetail);
+    ModuleRegistry.register('playlistTrackAll', playlistTrackAll);
     ModuleRegistry.register('recommendSongs', recommendSongs);
     ModuleRegistry.register('search', search);
     ModuleRegistry.register('songDetail', songDetail);
@@ -47,10 +49,10 @@ class AutoRegister {
     ModuleRegistry.register('userDetail', userDetail);
     ModuleRegistry.register('userPlaylist', userPlaylist);
     ModuleRegistry.register('userRecord', userRecord);
-    
+
     _registered = true;
   }
-  
+
   /// 获取所有已注册的模块名称
   static List<String> getRegisteredModuleNames() {
     return [
@@ -63,6 +65,7 @@ class AutoRegister {
       'logout',
       'personalized',
       'playlistDetail',
+      'playlistTrackAll',
       'recommendSongs',
       'search',
       'songDetail',
@@ -74,7 +77,7 @@ class AutoRegister {
       'userRecord',
     ];
   }
-  
+
   /// 获取模块总数
-  static int getModuleCount() => 18;
+  static int getModuleCount() => 19;
 }

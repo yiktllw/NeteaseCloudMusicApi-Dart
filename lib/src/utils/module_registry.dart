@@ -3,7 +3,9 @@ import '../utils/request.dart';
 /// API模块的统一接口 - 支持任何类型的返回值
 typedef ApiModule = Future<dynamic> Function(
   Map<String, dynamic> query,
-  Future<Map<String, dynamic>> Function(String, Map<String, dynamic>, RequestOptions) request,
+  Future<Map<String, dynamic>> Function(
+          String, Map<String, dynamic>, RequestOptions)
+      request,
 );
 
 /// 模块注册表
@@ -24,7 +26,9 @@ class ModuleRegistry {
   static Future<dynamic> call(
     String name,
     Map<String, dynamic> query,
-    Future<Map<String, dynamic>> Function(String, Map<String, dynamic>, RequestOptions) request,
+    Future<Map<String, dynamic>> Function(
+            String, Map<String, dynamic>, RequestOptions)
+        request,
   ) async {
     final module = _modules[name];
     if (module == null) {

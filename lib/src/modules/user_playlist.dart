@@ -4,7 +4,9 @@ import '../utils/module_registry.dart';
 /// 用户歌单
 Future<Map<String, dynamic>> userPlaylist(
   Map<String, dynamic> query,
-  Future<Map<String, dynamic>> Function(String, Map<String, dynamic>, RequestOptions) request,
+  Future<Map<String, dynamic>> Function(
+          String, Map<String, dynamic>, RequestOptions)
+      request,
 ) async {
   final data = {
     'uid': query['uid'],
@@ -13,7 +15,8 @@ Future<Map<String, dynamic>> userPlaylist(
     'includeVideo': true,
   };
 
-  return await request('/api/user/playlist', data, RequestOptions.create(query, crypto: 'weapi'));
+  return await request('/api/user/playlist', data,
+      RequestOptions.create(query, crypto: 'weapi'));
 }
 
 /// 注册用户歌单模块

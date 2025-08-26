@@ -41,11 +41,11 @@ void main() async {
       if (fileName != '.DS_Store') {
         moduleFiles.add(fileName);
         print('发现模块文件: $fileName');
-        
+
         // 读取文件内容分析函数和参数
         final content = await entity.readAsString();
         final modules = _extractModuleInfo(content, fileName);
-        
+
         for (final module in modules) {
           moduleInfos.add(module);
           print('  - 发现函数: ${module.name}');
@@ -54,7 +54,7 @@ void main() async {
             print('    必需参数: ${module.requiredParameters.join(', ')}');
           }
         }
-        
+
         imports.add("import '../modules/$fileName';");
       }
     }
@@ -65,13 +65,15 @@ void main() async {
 
   // 为每个模块生成注册调用
   for (final module in moduleInfos) {
-    final registrationCall = "    ModuleRegistry.register('${module.name}', ${module.name});";
+    final registrationCall =
+        "    ModuleRegistry.register('${module.name}', ${module.name});";
     registrations.add(registrationCall);
   }
 
   // 生成完整的中间文件
-  await _generateAutoRegisterFile(imports, registrations, moduleInfos.map((m) => m.name).toList());
-  
+  await _generateAutoRegisterFile(
+      imports, registrations, moduleInfos.map((m) => m.name).toList());
+
   // 生成增强的API常量文件
   await _generateEnhancedApiConstantsFile(moduleInfos);
 
@@ -83,11 +85,8 @@ void main() async {
 }
 
 /// 生成自动注册中间文件
-Future<void> _generateAutoRegisterFile(
-  List<String> imports, 
-  List<String> registrations, 
-  List<String> moduleNames
-) async {
+Future<void> _generateAutoRegisterFile(List<String> imports,
+    List<String> registrations, List<String> moduleNames) async {
   final autoRegisterContent = '''// 自动生成的模块注册文件
 // 请勿手动编辑此文件，运行 tools/auto_register_modules.dart 重新生成
 
@@ -128,29 +127,28 @@ ${moduleNames.map((name) => "      '$name',").join('\n')}
 List<ModuleInfo> _extractModuleInfo(String content, String fileName) {
   final modules = <ModuleInfo>[];
   final lines = content.split('\n');
-  
+
   for (int i = 0; i < lines.length; i++) {
     final line = lines[i];
-    
+
     // 匹配函数定义
     final patterns = [
       RegExp(r'Future<Map<String, dynamic>>\s+(\w+)\s*\('),
       RegExp(r'Future<[^>]+>\s+(\w+)\s*\('),
       RegExp(r'Map<String, dynamic>\s+(\w+)\s*\('),
     ];
-    
+
     for (final pattern in patterns) {
       final match = pattern.firstMatch(line);
       if (match != null) {
         final functionName = match.group(1)!;
-        
+
         // 排除私有函数等
-        if (!functionName.startsWith('_') && 
-            functionName != 'main' && 
+        if (!functionName.startsWith('_') &&
+            functionName != 'main' &&
             functionName != 'Function' &&
             !functionName.startsWith('register') &&
             functionName.length > 1) {
-          
           // 提取函数描述
           String? description;
           if (i > 0) {
@@ -159,10 +157,10 @@ List<ModuleInfo> _extractModuleInfo(String content, String fileName) {
               description = prevLine.substring(3).trim();
             }
           }
-          
+
           // 分析函数参数
           final paramInfo = _analyzeFunctionParameters(content, functionName);
-          
+
           modules.add(ModuleInfo(
             name: functionName,
             fileName: fileName,
@@ -170,13 +168,13 @@ List<ModuleInfo> _extractModuleInfo(String content, String fileName) {
             requiredParameters: paramInfo.requiredParams,
             description: description,
           ));
-          
+
           break;
         }
       }
     }
   }
-  
+
   return modules;
 }
 
@@ -184,7 +182,7 @@ List<ModuleInfo> _extractModuleInfo(String content, String fileName) {
 class ParameterInfo {
   final List<String> allParams;
   final List<String> requiredParams;
-  
+
   ParameterInfo({required this.allParams, required this.requiredParams});
 }
 
@@ -192,37 +190,39 @@ class ParameterInfo {
 ParameterInfo _analyzeFunctionParameters(String content, String functionName) {
   final allParams = <String>[];
   final requiredParams = <String>[];
-  
+
   // 在内容中查找对query的访问模式
   final queryPattern = RegExp(r"query\['(\w+)'\]");
   final matches = queryPattern.allMatches(content);
-  
+
   for (final match in matches) {
     final param = match.group(1)!;
     if (!allParams.contains(param)) {
       allParams.add(param);
-      
+
       // 简单启发式判断：如果没有默认值或null检查，认为是必需的
       final startIndex = math.max(0, content.indexOf(match.group(0)!) - 50);
-      final endIndex = math.min(content.length, content.indexOf(match.group(0)!) + 50);
+      final endIndex =
+          math.min(content.length, content.indexOf(match.group(0)!) + 50);
       final paramUsage = content.substring(startIndex, endIndex);
-      
+
       if (!paramUsage.contains('??') && !paramUsage.contains('!=')) {
         requiredParams.add(param);
       }
     }
   }
-  
+
   // 确保cookie参数总是可选的
   if (!allParams.contains('cookie')) {
     allParams.add('cookie');
   }
-  
+
   return ParameterInfo(allParams: allParams, requiredParams: requiredParams);
 }
 
 /// 生成增强的API常量文件
-Future<void> _generateEnhancedApiConstantsFile(List<ModuleInfo> moduleInfos) async {
+Future<void> _generateEnhancedApiConstantsFile(
+    List<ModuleInfo> moduleInfos) async {
   final apiConstantsContent = '''// 自动生成的API常量文件
 // 请勿手动编辑此文件，运行 auto_register_modules.dart 重新生成
 
@@ -264,13 +264,14 @@ String _generateParamMethod(ModuleInfo module) {
     final type = _getParameterType(param);
     return isRequired ? 'required $type $param' : '$type? $param';
   }).toList();
-  
+
   // 添加通用的timestamp参数
   paramList.add('String? timestamp');
-  
-  final paramMap = module.parameters.map((param) => "    '$param': $param,").toList();
+
+  final paramMap =
+      module.parameters.map((param) => "    '$param': $param,").toList();
   paramMap.add("    'timestamp': timestamp,");
-  
+
   return '''  /// ${module.description ?? module.name} 参数
   static Map<String, dynamic> ${module.name}({
     ${paramList.join(', ')},
@@ -286,13 +287,13 @@ String _generateCallerMethod(ModuleInfo module) {
     final type = _getParameterType(param);
     return isRequired ? 'required $type $param' : '$type? $param';
   }).toList();
-  
+
   // 添加通用的timestamp参数
   paramList.add('String? timestamp');
-  
+
   final paramArgs = module.parameters.map((param) => '$param: $param').toList();
   paramArgs.add('timestamp: timestamp');
-  
+
   return '''  /// ${module.description ?? module.name}
   Future<Map<String, dynamic>> ${module.name}({
     ${paramList.join(',\n    ')},
@@ -304,7 +305,10 @@ String _generateCallerMethod(ModuleInfo module) {
 /// 获取参数类型
 String _getParameterType(String param) {
   // 根据参数名推断类型
-  if (param.contains('limit') || param.contains('offset') || param.contains('type') || param.contains('count')) {
+  if (param.contains('limit') ||
+      param.contains('offset') ||
+      param.contains('type') ||
+      param.contains('count')) {
     return 'int';
   }
   return 'String';

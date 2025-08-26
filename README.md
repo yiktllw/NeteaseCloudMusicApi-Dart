@@ -34,11 +34,11 @@ import 'package:netease_cloud_music_api/netease_cloud_music_api.dart';
 void main() async {
   final api = NeteaseCloudMusicApi();
   await api.init();
-  
+
   // 搜索歌曲
   final searchResult = await api.search(keywords: '周杰伦', type: 1, limit: 10);
   print('搜索结果：$searchResult');
-  
+
   // 获取歌曲详情
   final songDetail = await api.songDetail(ids: '347230');
   print('歌曲详情：$songDetail');
@@ -48,21 +48,25 @@ void main() async {
 ### 支持的API
 
 #### 搜索相关
+
 - `search()` - 搜索歌曲、专辑、歌手等
 - `searchHot()` - 获取热门搜索
 - `searchSuggest()` - 获取搜索建议
 
 #### 歌曲相关
+
 - `songDetail()` - 获取歌曲详情
 - `songUrl()` - 获取歌曲播放URL
 - `lyric()` - 获取歌词
 
 #### 歌单相关
+
 - `playlistDetail()` - 获取歌单详情
 - `personalized()` - 获取推荐歌单
 - `recommendSongs()` - 获取每日推荐歌曲
 
 #### 用户相关
+
 - `loginCellphone()` - 手机号登录
 
 ### 加密方式
@@ -70,7 +74,7 @@ void main() async {
 支持网易云音乐的多种加密方式：
 
 - **WEAPI**: Web端加密方式
-- **EAPI**: 移动端加密方式  
+- **EAPI**: 移动端加密方式
 - **LinuxAPI**: Linux客户端加密方式
 - **API**: 无加密方式
 
@@ -92,6 +96,7 @@ void main() async {
 #### 方法
 
 ##### init()
+
 初始化API，获取匿名token等必要信息。
 
 ```dart
@@ -99,6 +104,7 @@ await api.init();
 ```
 
 ##### search()
+
 搜索歌曲、专辑、歌手等。
 
 ```dart
@@ -111,6 +117,7 @@ final result = await api.search(
 ```
 
 ##### songDetail()
+
 获取歌曲详情。
 
 ```dart
@@ -118,6 +125,7 @@ final result = await api.songDetail(ids: '347230,347231');
 ```
 
 ##### songUrl()
+
 获取歌曲播放URL。
 
 ```dart
@@ -128,6 +136,7 @@ final result = await api.songUrl(
 ```
 
 ##### loginCellphone()
+
 手机号登录。
 
 ```dart

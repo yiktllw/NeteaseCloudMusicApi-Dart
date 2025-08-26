@@ -7,7 +7,8 @@ class MemoryCache {
   int get size => _cache.length;
 
   /// 添加缓存
-  _CacheEntry? add(String key, dynamic value, int time, [Function(dynamic, String)? timeoutCallback]) {
+  _CacheEntry? add(String key, dynamic value, int time,
+      [Function(dynamic, String)? timeoutCallback]) {
     final old = _cache[key];
     old?.timeout?.cancel();
 

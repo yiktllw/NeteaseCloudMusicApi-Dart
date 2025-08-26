@@ -9,14 +9,16 @@ class CryptoHelper {
   static const String iv = '0102030405060708';
   static const String presetKey = '0CoJUm6Qyw8W8jud';
   static const String linuxapiKey = 'rFgB&h#%2?^eDg:Q';
-  static const String base62 = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  static const String base62 =
+      'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
   static const String eapiKey = 'e82ckenh8dichen8';
   static const String publicKey = '''-----BEGIN PUBLIC KEY-----
 MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDgtQn2JZ34ZC28NWYpAUd98iZ37BUrX/aKzmFbt7clFSs6sXqHauqKWqdtLkF2KexO40H1YTX8z2lSgBBOAxLsvaklV8k4cBFK9snQXE9/DDaFt6Rr7iVZMldczhC0JNgTz+SHXT6CBHuX3e9SdB1Ua44oncaTWz7OBGLbCiK45wIDAQAB
 -----END PUBLIC KEY-----''';
 
   /// AES加密
-  static String aesEncrypt(String text, String mode, String key, String ivParam, {String format = 'base64'}) {
+  static String aesEncrypt(String text, String mode, String key, String ivParam,
+      {String format = 'base64'}) {
     final keyBytes = Uint8List.fromList(utf8.encode(key));
     final ivBytes = Uint8List.fromList(utf8.encode(ivParam));
     final textBytes = Uint8List.fromList(utf8.encode(text));
@@ -36,7 +38,7 @@ MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDgtQn2JZ34ZC28NWYpAUd98iZ37BUrX/aKzmFbt7cl
     paddedCipher.init(true, PaddedBlockCipherParameters(params, null));
 
     final encrypted = paddedCipher.process(textBytes);
-    
+
     if (format == 'base64') {
       return base64.encode(encrypted);
     } else {
@@ -45,9 +47,10 @@ MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDgtQn2JZ34ZC28NWYpAUd98iZ37BUrX/aKzmFbt7cl
   }
 
   /// AES解密
-  static String aesDecrypt(String ciphertext, String key, String ivParam, {String format = 'base64'}) {
+  static String aesDecrypt(String ciphertext, String key, String ivParam,
+      {String format = 'base64'}) {
     final keyBytes = Uint8List.fromList(utf8.encode(key));
-    
+
     Uint8List encryptedBytes;
     if (format == 'base64') {
       encryptedBytes = base64.decode(ciphertext);
@@ -58,7 +61,7 @@ MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDgtQn2JZ34ZC28NWYpAUd98iZ37BUrX/aKzmFbt7cl
     // JavaScript版本始终使用ECB模式进行解密
     final cipher = ECBBlockCipher(AESEngine());
     final params = KeyParameter(keyBytes);
-    
+
     final paddedCipher = PaddedBlockCipherImpl(PKCS7Padding(), cipher);
     paddedCipher.init(false, PaddedBlockCipherParameters(params, null));
 
@@ -70,14 +73,14 @@ MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDgtQn2JZ34ZC28NWYpAUd98iZ37BUrX/aKzmFbt7cl
   static String _rsaEncrypt(String text, String publicKeyStr) {
     // 解析PEM格式的公钥
     final rsaPublicKey = _parsePublicKeyFromPem(publicKeyStr);
-    
+
     // 执行RSA加密（无填充，对应原项目的'NONE'）
     final cipher = RSAEngine();
     cipher.init(true, PublicKeyParameter<RSAPublicKey>(rsaPublicKey));
-    
+
     final textBytes = Uint8List.fromList(utf8.encode(text));
     final encrypted = cipher.process(textBytes);
-    
+
     return _bytesToHex(encrypted);
   }
 
@@ -90,45 +93,46 @@ MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDgtQn2JZ34ZC28NWYpAUd98iZ37BUrX/aKzmFbt7cl
         .replaceAll('\n', '')
         .replaceAll('\r', '')
         .trim();
-    
+
     // Base64解码
     final keyBytes = base64.decode(keyData);
-    
+
     // 使用ASN1解析器解析DER格式的公钥
     final asn1Parser = ASN1Parser(keyBytes);
     final topLevelSeq = asn1Parser.nextObject() as ASN1Sequence;
-    
+
     // 获取公钥位串
     final publicKeyBitString = topLevelSeq.elements[1] as ASN1BitString;
-    
+
     // 解析公钥位串中的RSA公钥
     final publicKeyBytes = publicKeyBitString.contentBytes();
     final publicKeyParser = ASN1Parser(publicKeyBytes);
     final publicKeySeq = publicKeyParser.nextObject() as ASN1Sequence;
-    
+
     final modulus = (publicKeySeq.elements[0] as ASN1Integer).valueAsBigInteger;
-    final exponent = (publicKeySeq.elements[1] as ASN1Integer).valueAsBigInteger;
-    
+    final exponent =
+        (publicKeySeq.elements[1] as ASN1Integer).valueAsBigInteger;
+
     return RSAPublicKey(modulus, exponent);
   }
 
   /// Web API加密
   static Map<String, String> weapi(Map<String, dynamic> object) {
     final text = jsonEncode(object);
-    
+
     // 生成16位随机密钥
     final secretKey = _generateSecretKey();
-    
+
     // 第一次AES加密：使用预设密钥
     final firstEncrypt = aesEncrypt(text, 'cbc', presetKey, iv);
-    
+
     // 第二次AES加密：使用随机密钥
     final params = aesEncrypt(firstEncrypt, 'cbc', secretKey, iv);
-    
+
     // RSA加密：将密钥反转后加密
     final reversedKey = secretKey.split('').reversed.join('');
     final encSecKey = _rsaEncrypt(reversedKey, publicKey);
-    
+
     return {
       'params': params,
       'encSecKey': encSecKey,
@@ -149,7 +153,7 @@ MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDgtQn2JZ34ZC28NWYpAUd98iZ37BUrX/aKzmFbt7cl
     final message = 'nobody${url}use${text}md5forencrypt';
     final digest = md5.convert(utf8.encode(message)).toString();
     final data = '$url-36cd479b6b5-$text-36cd479b6b5-$digest';
-    
+
     return {
       'params': aesEncrypt(data, 'ecb', eapiKey, '', format: 'hex'),
     };
@@ -157,26 +161,28 @@ MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDgtQn2JZ34ZC28NWYpAUd98iZ37BUrX/aKzmFbt7cl
 
   /// EAPI响应解密
   static Map<String, dynamic> eapiResDecrypt(String encryptedParams) {
-    final decryptedData = aesDecrypt(encryptedParams, eapiKey, '', format: 'hex');
+    final decryptedData =
+        aesDecrypt(encryptedParams, eapiKey, '', format: 'hex');
     return jsonDecode(decryptedData);
   }
 
   /// EAPI请求解密
   static Map<String, dynamic>? eapiReqDecrypt(String encryptedParams) {
-    final decryptedData = aesDecrypt(encryptedParams, eapiKey, '', format: 'hex');
+    final decryptedData =
+        aesDecrypt(encryptedParams, eapiKey, '', format: 'hex');
     final regex = RegExp(r'(.*?)-36cd479b6b5-(.*?)-36cd479b6b5-(.*)');
     final match = regex.firstMatch(decryptedData);
-    
+
     if (match != null) {
       final url = match.group(1)!;
       final data = jsonDecode(match.group(2)!);
-      
+
       return {
         'url': url,
         'data': data,
       };
     }
-    
+
     // 如果没有匹配到，返回null
     return null;
   }
