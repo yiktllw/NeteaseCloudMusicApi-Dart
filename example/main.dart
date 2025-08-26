@@ -95,7 +95,8 @@ void main() async {
     
     // 5. 获取用户详情示例
     print('\n👤 获取用户详情...');
-    var userResult = await api.call(ApiModules.userDetail, {'uid': '32953014'});
+    var userResult = await api.api.userDetail(uid: "375334328", timestamp: DateTime.now().millisecondsSinceEpoch.toString());
+    print(userResult);
     responseBody = userResult['body'] as Map<String, dynamic>?;
     
     if (responseBody != null && responseBody['code'] == 200) {

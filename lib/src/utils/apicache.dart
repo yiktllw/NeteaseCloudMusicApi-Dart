@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'api_logger.dart';
 import 'dart:async';
 import 'dart:developer' as dev;
 import 'memory_cache.dart';
@@ -149,10 +150,10 @@ class ApiCache {
 
     // 缓存未命中，执行请求
     _debug('cache miss for $key');
-    print('[API] 缓存未命中，正在发送实际HTTP请求...');
+    ApiLogManager.info('[API]', '缓存未命中，正在发送实际HTTP请求...');
     final result = await next();
     result['_fromCache'] = false; // 标识非缓存结果
-    print('[API] HTTP请求完成，状态码: ${result['status']}');
+    ApiLogManager.info('[API]', 'HTTP请求完成，状态码: ${result['status']}');
     
     // 缓存响应（只缓存状态码200的响应）
     if (_shouldCacheResponse(request, result, toggle)) {
@@ -174,15 +175,15 @@ class ApiCache {
     final url = request['url'] ?? '';
     final cookies = request['cookies'] ?? {};
     
-    print('[CACHE] 缓存键生成 - hostname: $hostname');
-    print('[CACHE] 缓存键生成 - url: $url');
-    print('[CACHE] 缓存键生成 - cookies: $cookies');
-    print('[CACHE] 缓存键生成 - request 完整内容: $request');
+    ApiLogManager.debug('[CACHE]', '缓存键生成 - hostname: $hostname');
+    ApiLogManager.debug('[CACHE]', '缓存键生成 - url: $url');
+    ApiLogManager.debug('[CACHE]', '缓存键生成 - cookies: $cookies');
+    ApiLogManager.debug('[CACHE]', '缓存键生成 - request 完整内容: $request');
     
     // 构建缓存键 - URL中已经包含了timestamp信息
     String baseKey = hostname + url + jsonEncode(cookies);
     
-    print('[CACHE] 生成的缓存键: $baseKey');
+    ApiLogManager.debug('[CACHE]', '生成的缓存键: $baseKey');
     return baseKey;
   }
 

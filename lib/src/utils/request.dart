@@ -4,6 +4,7 @@ import 'dart:math';
 import 'crypto.dart';
 import 'utils.dart';
 import 'apicache.dart';
+import 'api_logger.dart';
 
 class RequestHelper {
   static const Map<String, Map<String, String>> osMap = {
@@ -98,8 +99,8 @@ class RequestHelper {
     Map<String, dynamic> data,
     RequestOptions options,
   ) async {
-    print('[REQUEST] 开始执行请求: $uri');
-    print('[REQUEST] 请求参数: $data');
+    ApiLogManager.info('[REQUEST]', '开始执行请求: $uri');
+    ApiLogManager.debug('[REQUEST]', '请求参数: $data');
     
     final headers = <String, String>{
       ...?options.headers,
@@ -236,8 +237,8 @@ class RequestHelper {
     RequestOptions options,
   ) async {
     try {
-      print('[HTTP] 正在发送HTTP请求到: $url');
-      print('[HTTP] 请求数据: $data');
+      ApiLogManager.debug('[HTTP]', '正在发送HTTP请求到: $url');
+      ApiLogManager.debug('[HTTP]', '请求数据: $data');
       
       final client = HttpClient();
       final uri = Uri.parse(url);
@@ -256,10 +257,10 @@ class RequestHelper {
           .join('&');
       request.write(body);
 
-      print('[HTTP] 发送请求中...');
+      ApiLogManager.debug('[HTTP]', '发送请求中...');
       final response = await request.close();
       final responseBody = await response.transform(utf8.decoder).join();
-      print('[HTTP] 收到响应，状态码: ${response.statusCode}');
+      ApiLogManager.info('[HTTP]', '收到响应，状态码: ${response.statusCode}');
 
       final cookies = response.headers['set-cookie']
           ?.map((cookie) => cookie.replaceAll(RegExp(r'\s*Domain=[^(;|$)]+;*'), ''))

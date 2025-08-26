@@ -15,6 +15,7 @@ import '../modules/search.dart';
 import '../modules/song_detail.dart';
 import '../modules/song_url_v1.dart';
 import '../modules/song_wiki_summary.dart';
+import '../modules/user_account.dart';
 import '../modules/user_detail.dart';
 import '../modules/user_playlist.dart';
 import '../modules/user_record.dart';
@@ -40,6 +41,7 @@ class AutoRegister {
     ModuleRegistry.register('songDetail', songDetail);
     ModuleRegistry.register('songUrlV1', songUrlV1);
     ModuleRegistry.register('songWikiSummary', songWikiSummary);
+    ModuleRegistry.register('userAccount', userAccount);
     ModuleRegistry.register('userDetail', userDetail);
     ModuleRegistry.register('userPlaylist', userPlaylist);
     ModuleRegistry.register('userRecord', userRecord);
@@ -63,6 +65,7 @@ class AutoRegister {
       'songDetail',
       'songUrlV1',
       'songWikiSummary',
+      'userAccount',
       'userDetail',
       'userPlaylist',
       'userRecord',
@@ -70,5 +73,5 @@ class AutoRegister {
   }
   
   /// 获取模块总数
-  static int getModuleCount() => 16;
+  static int getModuleCount() => 17;
 }

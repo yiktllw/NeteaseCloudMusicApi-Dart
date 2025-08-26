@@ -31,6 +31,8 @@ class ApiModules {
   static const String songUrlV1 = 'songUrlV1';
   /// 音乐百科基础信息 模块
   static const String songWikiSummary = 'songWikiSummary';
+  /// 获取当前登录用户的账户详细信息，包括账户状态、会员信息等 模块
+  static const String userAccount = 'userAccount';
   /// 用户详情 模块
   static const String userDetail = 'userDetail';
   /// 用户歌单 模块
@@ -145,6 +147,13 @@ class ApiParams {
     required String id, String? cookie, String? timestamp,
   }) => {
     'id': id,
+    'cookie': cookie,
+    'timestamp': timestamp,
+  };
+  /// 获取当前登录用户的账户详细信息，包括账户状态、会员信息等 参数
+  static Map<String, dynamic> userAccount({
+    String? cookie, String? timestamp,
+  }) => {
     'cookie': cookie,
     'timestamp': timestamp,
   };
@@ -314,6 +323,14 @@ class ApiCaller {
     String? timestamp,
   }) => _call(ApiModules.songWikiSummary, ApiParams.songWikiSummary(
     id: id,
+    cookie: cookie,
+    timestamp: timestamp,
+  ));
+  /// 获取当前登录用户的账户详细信息，包括账户状态、会员信息等
+  Future<Map<String, dynamic>> userAccount({
+    String? cookie,
+    String? timestamp,
+  }) => _call(ApiModules.userAccount, ApiParams.userAccount(
     cookie: cookie,
     timestamp: timestamp,
   ));
