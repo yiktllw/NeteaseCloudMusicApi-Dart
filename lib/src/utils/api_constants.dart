@@ -5,6 +5,8 @@
 /// 
 /// 提供IDE智能提示和类型安全的模块名称
 class ApiModules {
+  /// 返回用户已收藏的专辑列表 模块
+  static const String albumSublist = 'albumSublist';
   /// 二维码登录检测 模块
   static const String loginQrCheck = 'loginQrCheck';
   /// 二维码登录创建 模块
@@ -45,6 +47,15 @@ class ApiModules {
 /// 
 /// 为各个API模块提供参数构建方法，提供IDE智能提示
 class ApiParams {
+  /// 返回用户已收藏的专辑列表 参数
+  static Map<String, dynamic> albumSublist({
+    int? limit, int? offset, String? cookie, String? timestamp,
+  }) => {
+    'limit': limit,
+    'offset': offset,
+    'cookie': cookie,
+    'timestamp': timestamp,
+  };
   /// 二维码登录检测 参数
   static Map<String, dynamic> loginQrCheck({
     required String key, String? cookie, String? timestamp,
@@ -194,6 +205,18 @@ class ApiCaller {
   
   const ApiCaller(this._call);
   
+  /// 返回用户已收藏的专辑列表
+  Future<Map<String, dynamic>> albumSublist({
+    int? limit,
+    int? offset,
+    String? cookie,
+    String? timestamp,
+  }) => _call(ApiModules.albumSublist, ApiParams.albumSublist(
+    limit: limit,
+    offset: offset,
+    cookie: cookie,
+    timestamp: timestamp,
+  ));
   /// 二维码登录检测
   Future<Map<String, dynamic>> loginQrCheck({
     required String key,
