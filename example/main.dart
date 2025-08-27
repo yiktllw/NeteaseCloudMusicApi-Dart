@@ -66,8 +66,7 @@ void main() async {
 
         // 3. 获取歌曲播放链接
         print('\n🔗 获取播放链接...');
-        var urlResult = await api.call(
-            ApiModules.songUrlV1, {'id': firstSongId, 'cookie': cookie ?? ''});
+        var urlResult = await api.api.songUrlV1(id: "1145545", level: "standard", cookie: cookie);
         responseBody = urlResult['body'] as Map<String, dynamic>?;
 
         if (responseBody != null && responseBody['code'] == 200) {
@@ -131,11 +130,12 @@ void main() async {
   }
 
   // final result = await api.api.userPlaylist(uid: "375334328", limit: 100, timestamp: DateTime.now().millisecondsSinceEpoch.toString());
-  final result =
-      await api.api.playlistDetail(id: "12627516969", cookie: cookie);
+  // final response =
+  //     await api.api.playlistDetail(id: "12627516969", cookie: cookie);
+  // final result = api.getStructureString(response, maxDepth: 10);
   // final responseArray = result['body']?['playlist'] as List?;
   // final resultArray = responseArray?.where((item) => item['name'] == '测试').toList();
-  print(result);
+  // print(result);
 
   print('\n=== 示例完成 ===');
   print('💡 更多API用法请参考: test/test_all_converted_apis.dart');

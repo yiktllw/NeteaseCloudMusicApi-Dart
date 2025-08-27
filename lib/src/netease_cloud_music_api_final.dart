@@ -8,6 +8,7 @@ import 'utils/api_constants.dart';
 import 'dart:convert';
 import 'package:crypto/crypto.dart';
 import 'utils/api_logger.dart';
+import 'utils/api_structure_analyzer.dart';
 
 /// 网易云音乐API核心类 - 最终简化版本
 class NeteaseCloudMusicApiFinal {
@@ -205,4 +206,70 @@ class NeteaseCloudMusicApiFinal {
 
   List<String> getRegisteredModuleNames() =>
       ModuleRegistry.getAllModules().keys.toList();
+
+  /// 分析API响应的数据结构
+  /// 
+  /// 使用方式：
+  /// ```dart
+  /// final result = await api.call('search', {'keywords': '周杰伦'});
+  /// final structure = api.analyzeApiStructure(result);
+  /// print(api.getStructureString(result));
+  /// ```
+  Map<String, dynamic> analyzeApiStructure(
+    Map<String, dynamic> apiResult, {
+    int maxDepth = 5,
+    bool includeValues = true,
+  }) {
+    return ApiStructureAnalyzer.analyzeStructure(
+      apiResult,
+      maxDepth: maxDepth,
+      includeValues: includeValues,
+    );
+  }
+
+  /// 生成API响应数据结构的字符串描述
+  String getStructureString(
+    Map<String, dynamic> apiResult, {
+    int maxDepth = 5,
+    bool includeValues = true,
+    String indent = '  ',
+  }) {
+    return ApiStructureAnalyzer.generateStructureString(
+      apiResult,
+      maxDepth: maxDepth,
+      includeValues: includeValues,
+      indent: indent,
+    );
+  }
+
+  /// 生成TypeScript接口定义
+  String generateTypeScriptInterface(
+    Map<String, dynamic> apiResult, {
+    String interfaceName = 'ApiResponse',
+    int maxDepth = 5,
+  }) {
+    return ApiStructureAnalyzer.generateTypeScriptInterface(
+      apiResult,
+      interfaceName: interfaceName,
+      maxDepth: maxDepth,
+    );
+  }
+
+  /// 生成Dart类定义
+  String generateDartClass(
+    Map<String, dynamic> apiResult, {
+    String className = 'ApiResponse',
+    int maxDepth = 5,
+  }) {
+    return ApiStructureAnalyzer.generateDartClass(
+      apiResult,
+      className: className,
+      maxDepth: maxDepth,
+    );
+  }
+
+  /// 获取API响应的统计信息
+  Map<String, dynamic> getApiStatistics(Map<String, dynamic> apiResult) {
+    return ApiStructureAnalyzer.getStatistics(apiResult);
+  }
 }

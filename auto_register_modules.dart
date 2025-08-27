@@ -34,11 +34,12 @@ void main() async {
   final moduleInfos = <ModuleInfo>[];
   final imports = <String>[];
   final registrations = <String>[];
+  final processedModules = <String>{};  // 添加去重集合
 
   await for (final entity in modulesDir.list()) {
     if (entity is File && entity.path.endsWith('.dart')) {
       final fileName = entity.path.split('/').last.split('\\').last;
-      if (fileName != '.DS_Store') {
+      if (fileName != '.DS_Store' && !moduleFiles.contains(fileName)) {  // 防止重复处理
         moduleFiles.add(fileName);
         print('发现模块文件: $fileName');
 
@@ -47,15 +48,23 @@ void main() async {
         final modules = _extractModuleInfo(content, fileName);
 
         for (final module in modules) {
-          moduleInfos.add(module);
-          print('  - 发现函数: ${module.name}');
-          print('    参数: ${module.parameters.join(', ')}');
-          if (module.requiredParameters.isNotEmpty) {
-            print('    必需参数: ${module.requiredParameters.join(', ')}');
+          // 防止重复注册同名模块
+          if (!processedModules.contains(module.name)) {
+            moduleInfos.add(module);
+            processedModules.add(module.name);
+            print('  - 发现函数: ${module.name}');
+            print('    参数: ${module.parameters.join(', ')}');
+            if (module.requiredParameters.isNotEmpty) {
+              print('    必需参数: ${module.requiredParameters.join(', ')}');
+            }
+          } else {
+            print('  - 跳过重复函数: ${module.name}');
           }
         }
 
-        imports.add("import '../modules/$fileName';");
+        if (!imports.contains("import '../modules/$fileName';")) {  // 防止重复导入
+          imports.add("import '../modules/$fileName';");
+        }
       }
     }
   }
@@ -212,10 +221,17 @@ ParameterInfo _analyzeFunctionParameters(String content, String functionName) {
     }
   }
 
-  // 确保cookie参数总是可选的
+  // 确保cookie和timestamp参数总是存在且可选
   if (!allParams.contains('cookie')) {
     allParams.add('cookie');
   }
+  if (!allParams.contains('timestamp')) {
+    allParams.add('timestamp');
+  }
+  
+  // 确保cookie和timestamp不在必需参数列表中
+  requiredParams.remove('cookie');
+  requiredParams.remove('timestamp');
 
   return ParameterInfo(allParams: allParams, requiredParams: requiredParams);
 }
@@ -259,18 +275,23 @@ ${moduleInfos.map((m) => _generateCallerMethod(m)).join('\n')}
 
 /// 生成参数方法
 String _generateParamMethod(ModuleInfo module) {
-  final paramList = module.parameters.map((param) {
+  final allParams = <String>[...module.parameters];
+  
+  // 确保cookie和timestamp参数存在且不重复
+  if (!allParams.contains('cookie')) {
+    allParams.add('cookie');
+  }
+  if (!allParams.contains('timestamp')) {
+    allParams.add('timestamp');
+  }
+  
+  final paramList = allParams.map((param) {
     final isRequired = module.requiredParameters.contains(param);
     final type = _getParameterType(param);
     return isRequired ? 'required $type $param' : '$type? $param';
   }).toList();
 
-  // 添加通用的timestamp参数
-  paramList.add('String? timestamp');
-
-  final paramMap =
-      module.parameters.map((param) => "    '$param': $param,").toList();
-  paramMap.add("    'timestamp': timestamp,");
+  final paramMap = allParams.map((param) => "    '$param': $param,").toList();
 
   return '''  /// ${module.description ?? module.name} 参数
   static Map<String, dynamic> ${module.name}({
@@ -282,17 +303,23 @@ ${paramMap.join('\n')}
 
 /// 生成调用方法
 String _generateCallerMethod(ModuleInfo module) {
-  final paramList = module.parameters.map((param) {
+  final allParams = <String>[...module.parameters];
+  
+  // 确保cookie和timestamp参数存在且不重复
+  if (!allParams.contains('cookie')) {
+    allParams.add('cookie');
+  }
+  if (!allParams.contains('timestamp')) {
+    allParams.add('timestamp');
+  }
+  
+  final paramList = allParams.map((param) {
     final isRequired = module.requiredParameters.contains(param);
     final type = _getParameterType(param);
     return isRequired ? 'required $type $param' : '$type? $param';
   }).toList();
 
-  // 添加通用的timestamp参数
-  paramList.add('String? timestamp');
-
-  final paramArgs = module.parameters.map((param) => '$param: $param').toList();
-  paramArgs.add('timestamp: timestamp');
+  final paramArgs = allParams.map((param) => '$param: $param').toList();
 
   return '''  /// ${module.description ?? module.name}
   Future<Map<String, dynamic>> ${module.name}({

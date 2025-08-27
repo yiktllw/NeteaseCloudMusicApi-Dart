@@ -210,10 +210,12 @@ class RequestHelper {
               '${DateTime.now().millisecondsSinceEpoch}_${Random().nextInt(1000).toString().padLeft(4, '0')}',
         };
 
-        if (cookie['MUSIC_U']?.isNotEmpty == true)
+        if (cookie['MUSIC_U']?.isNotEmpty == true) {
           header['MUSIC_U'] = cookie['MUSIC_U']!;
-        if (cookie['MUSIC_A']?.isNotEmpty == true)
+        }
+        if (cookie['MUSIC_A']?.isNotEmpty == true) {
           header['MUSIC_A'] = cookie['MUSIC_A']!;
+        }
 
         // 重新设置Cookie头，覆盖之前的设置
         headers['Cookie'] = header.entries

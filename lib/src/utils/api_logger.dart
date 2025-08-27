@@ -1,4 +1,7 @@
 /// 日志级别枚举
+library;
+// ignore_for_file: avoid_print
+
 enum ApiLogLevel {
   debug,
   info,

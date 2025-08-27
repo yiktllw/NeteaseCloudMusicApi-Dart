@@ -25,11 +25,11 @@ import '../modules/user_record.dart';
 /// 自动注册所有API模块
 class AutoRegister {
   static bool _registered = false;
-
+  
   /// 注册所有模块
   static void registerAllModules() {
     if (_registered) return;
-
+    
     ModuleRegistry.register('albumSublist', albumSublist);
     ModuleRegistry.register('loginQrCheck', loginQrCheck);
     ModuleRegistry.register('loginQrCreate', loginQrCreate);
@@ -49,10 +49,10 @@ class AutoRegister {
     ModuleRegistry.register('userDetail', userDetail);
     ModuleRegistry.register('userPlaylist', userPlaylist);
     ModuleRegistry.register('userRecord', userRecord);
-
+    
     _registered = true;
   }
-
+  
   /// 获取所有已注册的模块名称
   static List<String> getRegisteredModuleNames() {
     return [
@@ -77,7 +77,7 @@ class AutoRegister {
       'userRecord',
     ];
   }
-
+  
   /// 获取模块总数
   static int getModuleCount() => 19;
 }

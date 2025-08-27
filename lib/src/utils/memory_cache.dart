@@ -7,6 +7,7 @@ class MemoryCache {
   int get size => _cache.length;
 
   /// 添加缓存
+  // ignore: library_private_types_in_public_api
   _CacheEntry? add(String key, dynamic value, int time,
       [Function(dynamic, String)? timeoutCallback]) {
     final old = _cache[key];
@@ -35,6 +36,7 @@ class MemoryCache {
   }
 
   /// 获取缓存条目
+  // ignore: library_private_types_in_public_api
   _CacheEntry? get(String key) {
     final entry = _cache[key];
     if (entry != null && DateTime.now().millisecondsSinceEpoch > entry.expire) {
