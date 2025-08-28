@@ -75,6 +75,7 @@ void main() async {
               urlData.isNotEmpty &&
               urlData[0]['url'] != null) {
             print('✅ 播放链接获取成功:');
+            print(urlData);
             print('   URL: ${urlData[0]['url']}');
             print('   码率: ${urlData[0]['br']} kbps');
           } else {
