@@ -1,6 +1,5 @@
 import 'dart:convert';
 import '../utils/request.dart';
-import '../utils/module_registry.dart';
 
 /// 用户详情
 Future<Map<String, dynamic>> userDetail(
@@ -18,9 +17,4 @@ Future<Map<String, dynamic>> userDetail(
   final processedStr =
       responseStr.replaceAll('avatarImgId_str', 'avatarImgIdStr');
   return jsonDecode(processedStr) as Map<String, dynamic>;
-}
-
-/// 注册模块到注册表
-void registerUserDetailModule() {
-  ModuleRegistry.register('userDetail', userDetail);
 }

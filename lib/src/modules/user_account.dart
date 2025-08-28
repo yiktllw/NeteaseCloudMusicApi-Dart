@@ -1,5 +1,4 @@
 import '../utils/request.dart';
-import '../utils/module_registry.dart';
 
 /// 用户账户信息
 ///
@@ -13,9 +12,4 @@ Future<Map<String, dynamic>> userAccount(
   final data = <String, dynamic>{};
   return await request('/api/nuser/account/get', data,
       RequestOptions.create(query, crypto: 'weapi'));
-}
-
-/// 注册模块到注册表
-void registerUserAccountModule() {
-  ModuleRegistry.register('userAccount', userAccount);
 }

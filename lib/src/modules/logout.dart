@@ -1,5 +1,4 @@
 import '../utils/request.dart';
-import '../utils/module_registry.dart';
 
 /// 退出登录
 Future<Map<String, dynamic>> logout(
@@ -13,9 +12,4 @@ Future<Map<String, dynamic>> logout(
     <String, dynamic>{},
     RequestOptions.create(query),
   );
-}
-
-/// 注册退出登录模块
-void registerLogoutModule() {
-  ModuleRegistry.register('logout', logout);
 }

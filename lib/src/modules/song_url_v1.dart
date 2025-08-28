@@ -1,5 +1,4 @@
 import '../utils/request.dart';
-import '../utils/module_registry.dart';
 
 /// 歌曲链接 - v1
 /// 此版本不再采用 br 作为音质区分的标准
@@ -22,9 +21,4 @@ Future<Map<String, dynamic>> songUrlV1(
 
   return await request(
       '/api/song/enhance/player/url/v1', data, RequestOptions.create(query));
-}
-
-/// 注册歌曲链接模块
-void registerSongUrlV1Module() {
-  ModuleRegistry.register('songUrlV1', songUrlV1);
 }

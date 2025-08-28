@@ -1,5 +1,4 @@
 import '../utils/request.dart';
-import '../utils/module_registry.dart';
 
 /// 已收藏专辑列表
 ///
@@ -22,9 +21,4 @@ Future<Map<String, dynamic>> albumSublist(
 
   return await request('/api/album/sublist', data,
       RequestOptions.create(query, crypto: 'weapi'));
-}
-
-/// 注册已收藏专辑列表模块
-void registerAlbumSublistModule() {
-  ModuleRegistry.register('albumSublist', albumSublist);
 }

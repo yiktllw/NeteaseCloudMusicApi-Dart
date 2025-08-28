@@ -1,5 +1,4 @@
 import '../utils/request.dart';
-import '../utils/module_registry.dart';
 
 /// 二维码登录 key 生成
 Future<Map<String, dynamic>> loginQrKey(
@@ -26,9 +25,4 @@ Future<Map<String, dynamic>> loginQrKey(
     },
     'cookie': result['cookie'],
   };
-}
-
-/// 注册二维码登录key生成模块
-void registerLoginQrKeyModule() {
-  ModuleRegistry.register('loginQrKey', loginQrKey);
 }

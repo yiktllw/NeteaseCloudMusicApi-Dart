@@ -1,5 +1,4 @@
 import '../utils/request.dart';
-import '../utils/module_registry.dart';
 
 /// 用户听歌记录
 Future<Map<String, dynamic>> userRecord(
@@ -15,9 +14,4 @@ Future<Map<String, dynamic>> userRecord(
 
   return await request('/api/v1/play/record', data,
       RequestOptions.create(query, crypto: 'weapi'));
-}
-
-/// 注册用户听歌记录模块
-void registerUserRecordModule() {
-  ModuleRegistry.register('userRecord', userRecord);
 }

@@ -1,5 +1,4 @@
 import '../utils/request.dart';
-import '../utils/module_registry.dart';
 
 /// 获取歌单所有歌曲数据
 ///
@@ -84,9 +83,4 @@ Future<Map<String, dynamic>> playlistTrackAll(
   );
 
   return songsResult;
-}
-
-/// 注册歌单所有歌曲模块
-void registerPlaylistTrackAllModule() {
-  ModuleRegistry.register('playlistTrackAll', playlistTrackAll);
 }

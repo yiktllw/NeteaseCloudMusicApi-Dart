@@ -1,5 +1,4 @@
 import '../utils/request.dart';
-import '../utils/module_registry.dart';
 
 /// 登录状态
 Future<Map<String, dynamic>> loginStatus(
@@ -29,9 +28,4 @@ Future<Map<String, dynamic>> loginStatus(
   }
 
   return result;
-}
-
-/// 注册登录状态模块
-void registerLoginStatusModule() {
-  ModuleRegistry.register('loginStatus', loginStatus);
 }

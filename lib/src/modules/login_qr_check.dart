@@ -1,5 +1,4 @@
 import '../utils/request.dart';
-import '../utils/module_registry.dart';
 
 /// 二维码登录检测
 Future<Map<String, dynamic>> loginQrCheck(
@@ -35,9 +34,4 @@ Future<Map<String, dynamic>> loginQrCheck(
       'cookie': <String>[],
     };
   }
-}
-
-/// 注册二维码登录检测模块
-void registerLoginQrCheckModule() {
-  ModuleRegistry.register('loginQrCheck', loginQrCheck);
 }

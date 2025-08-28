@@ -1,5 +1,4 @@
 import '../utils/request.dart';
-import '../utils/module_registry.dart';
 
 /// 登录刷新
 Future<Map<String, dynamic>> loginRefresh(
@@ -26,9 +25,4 @@ Future<Map<String, dynamic>> loginRefresh(
   }
 
   return result;
-}
-
-/// 注册登录刷新模块
-void registerLoginRefreshModule() {
-  ModuleRegistry.register('loginRefresh', loginRefresh);
 }

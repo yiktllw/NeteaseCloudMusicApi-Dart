@@ -1,5 +1,4 @@
 import '../utils/request.dart';
-import '../utils/module_registry.dart';
 
 /// 用户歌单
 Future<Map<String, dynamic>> userPlaylist(
@@ -17,9 +16,4 @@ Future<Map<String, dynamic>> userPlaylist(
 
   return await request('/api/user/playlist', data,
       RequestOptions.create(query, crypto: 'weapi'));
-}
-
-/// 注册用户歌单模块
-void registerUserPlaylistModule() {
-  ModuleRegistry.register('userPlaylist', userPlaylist);
 }

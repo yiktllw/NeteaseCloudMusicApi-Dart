@@ -1,5 +1,4 @@
 import '../utils/request.dart';
-import '../utils/module_registry.dart';
 
 /// 二维码登录创建
 Future<Map<String, dynamic>> loginQrCreate(
@@ -21,9 +20,4 @@ Future<Map<String, dynamic>> loginQrCreate(
       },
     },
   };
-}
-
-/// 注册二维码登录创建模块
-void registerLoginQrCreateModule() {
-  ModuleRegistry.register('loginQrCreate', loginQrCreate);
 }

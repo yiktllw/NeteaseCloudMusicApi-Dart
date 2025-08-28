@@ -1,5 +1,4 @@
 import '../utils/request.dart';
-import '../utils/module_registry.dart';
 
 /// 音乐百科基础信息
 Future<Map<String, dynamic>> songWikiSummary(
@@ -14,9 +13,4 @@ Future<Map<String, dynamic>> songWikiSummary(
 
   return await request(
       '/api/song/play/about/block/page', data, RequestOptions.create(query));
-}
-
-/// 注册音乐百科模块
-void registerSongWikiSummaryModule() {
-  ModuleRegistry.register('songWikiSummary', songWikiSummary);
 }

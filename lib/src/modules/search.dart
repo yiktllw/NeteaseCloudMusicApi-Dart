@@ -1,5 +1,4 @@
 import '../utils/request.dart';
-import '../utils/module_registry.dart';
 
 /// 搜索
 Future<Map<String, dynamic>> search(
@@ -28,9 +27,4 @@ Future<Map<String, dynamic>> search(
   };
 
   return await request('/api/search/get', data, RequestOptions.create(query));
-}
-
-/// 注册搜索模块
-void registerSearchModule() {
-  ModuleRegistry.register('search', search);
 }
