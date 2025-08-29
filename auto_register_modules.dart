@@ -242,11 +242,40 @@ Future<void> _generateEnhancedApiConstantsFile(
   final apiConstantsContent = '''// 自动生成的API常量文件
 // 请勿手动编辑此文件，运行 auto_register_modules.dart 重新生成
 
+/// 参数信息类
+class ParameterInfo {
+  final String name;
+  final bool isRequired;
+  final String type;
+  final String description;
+
+  const ParameterInfo({
+    required this.name,
+    required this.isRequired,
+    required this.type,
+    required this.description,
+  });
+}
+
 /// API模块名称常量
 /// 
 /// 提供IDE智能提示和类型安全的模块名称
 class ApiModules {
 ${moduleInfos.map((m) => "  /// ${m.description ?? m.name} 模块\n  static const String ${m.name} = '${m.name}';").join('\n')}
+}
+
+/// API模块信息常量
+/// 
+/// 提供每个API模块的参数信息
+class ApiInfo {
+${moduleInfos.map((m) => _generateApiInfoMethod(m)).join('\n')}
+
+  /// 获取所有API信息
+  static Map<String, Map<String, ParameterInfo>> getAllApiInfo() {
+    return {
+${moduleInfos.map((m) => "      '${m.name}': ${m.name}(),").join('\n')}
+    };
+  }
 }
 
 /// API参数帮助类
@@ -271,6 +300,55 @@ ${moduleInfos.map((m) => _generateCallerMethod(m)).join('\n')}
   final apiConstantsFile = File('lib/src/utils/api_constants.dart');
   await apiConstantsFile.writeAsString(apiConstantsContent);
   print('✅ 增强API常量文件已生成: ${apiConstantsFile.path}');
+}
+
+/// 生成API信息方法
+String _generateApiInfoMethod(ModuleInfo module) {
+  final allParams = <String>[...module.parameters];
+  
+  // 确保cookie和timestamp参数存在且不重复
+  if (!allParams.contains('cookie')) {
+    allParams.add('cookie');
+  }
+  if (!allParams.contains('timestamp')) {
+    allParams.add('timestamp');
+  }
+  
+  final paramInfos = allParams.map((param) {
+    final isRequired = module.requiredParameters.contains(param);
+    final type = _getParameterType(param);
+    final description = _getParameterDescription(param, module.name);
+    return "      '$param': ParameterInfo(name: '$param', isRequired: $isRequired, type: '$type', description: '$description'),";
+  }).toList();
+
+  return '''  /// ${module.description ?? module.name} 参数信息
+  static Map<String, ParameterInfo> ${module.name}() {
+    return {
+${paramInfos.join('\n')}
+    };
+  }''';
+}
+
+/// 获取参数描述
+String _getParameterDescription(String param, String moduleName) {
+  // 根据参数名推断描述
+  final descriptions = {
+    'cookie': 'cookie字符串',
+    'timestamp': '时间戳',
+    'limit': '限制返回数量',
+    'offset': '偏移量',
+    'id': 'ID',
+    'uid': '用户ID',
+    'type': '类型',
+    'keywords': '搜索关键词',
+    'key': '密钥',
+    'qrimg': '是否返回二维码图片',
+    's': '额外参数',
+    'ids': 'ID列表，多个用逗号分隔',
+    'level': '音质等级',
+  };
+  
+  return descriptions[param] ?? '$param参数';
 }
 
 /// 生成参数方法

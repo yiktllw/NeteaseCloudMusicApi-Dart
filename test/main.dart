@@ -1,6 +1,7 @@
 // ignore_for_file: avoid_print
 
 import 'package:netease_cloud_music_api/src/netease_cloud_music_api_final.dart';
+import 'package:netease_cloud_music_api/src/utils/api_constants.dart';
 import 'dart:io';
 import 'dart:convert';
 
@@ -22,7 +23,7 @@ void main() async {
   await loadUserVariables();
 
   // 获取所有可用的API
-  final apiInfo = getApiInfo();
+  final apiInfo = ApiInfo.getAllApiInfo();
 
   while (true) {
     try {
@@ -107,70 +108,6 @@ Future<void> testApi(NeteaseCloudMusicApiFinal api, Map<String, Map<String, Para
   print('\n✅ 已保存到历史记录');
 }
 
-/// 获取API信息（硬编码，基于api_constants.dart）
-Map<String, Map<String, ParameterInfo>> getApiInfo() {
-  return {
-    'albumSublist': {
-      'limit': ParameterInfo(name: 'limit', isRequired: false, type: 'int', description: '限制返回数量'),
-      'offset': ParameterInfo(name: 'offset', isRequired: false, type: 'int', description: '偏移量'),
-    },
-    'loginQrCheck': {
-      'key': ParameterInfo(name: 'key', isRequired: true, type: 'String', description: '二维码key'),
-    },
-    'loginQrCreate': {
-      'key': ParameterInfo(name: 'key', isRequired: true, type: 'String', description: '二维码key'),
-      'qrimg': ParameterInfo(name: 'qrimg', isRequired: true, type: 'String', description: '是否返回二维码图片'),
-    },
-    'loginQrKey': {},
-    'loginRefresh': {},
-    'loginStatus': {},
-    'logout': {},
-    'personalized': {
-      'limit': ParameterInfo(name: 'limit', isRequired: false, type: 'int', description: '限制返回数量'),
-    },
-    'playlistDetail': {
-      'id': ParameterInfo(name: 'id', isRequired: true, type: 'String', description: '歌单ID'),
-      's': ParameterInfo(name: 's', isRequired: false, type: 'String', description: '歌单最近收藏者'),
-    },
-    'playlistTrackAll': {
-      'id': ParameterInfo(name: 'id', isRequired: true, type: 'String', description: '歌单ID'),
-      's': ParameterInfo(name: 's', isRequired: false, type: 'String', description: '歌单最近收藏者'),
-      'limit': ParameterInfo(name: 'limit', isRequired: false, type: 'int', description: '限制返回数量'),
-      'offset': ParameterInfo(name: 'offset', isRequired: false, type: 'int', description: '偏移量'),
-    },
-    'recommendSongs': {},
-    'search': {
-      'type': ParameterInfo(name: 'type', isRequired: false, type: 'int', description: '搜索类型 1:单曲 10:专辑 100:歌手 1000:歌单'),
-      'keywords': ParameterInfo(name: 'keywords', isRequired: true, type: 'String', description: '搜索关键词'),
-      'limit': ParameterInfo(name: 'limit', isRequired: false, type: 'int', description: '限制返回数量'),
-      'offset': ParameterInfo(name: 'offset', isRequired: false, type: 'int', description: '偏移量'),
-    },
-    'songDetail': {
-      'ids': ParameterInfo(name: 'ids', isRequired: true, type: 'String', description: '歌曲ID，多个用逗号分隔'),
-    },
-    'songUrlV1': {
-      'id': ParameterInfo(name: 'id', isRequired: true, type: 'String', description: '歌曲ID'),
-      'level': ParameterInfo(name: 'level', isRequired: true, type: 'String', description: '音质等级 standard/exhigh/lossless'),
-    },
-    'songWikiSummary': {
-      'id': ParameterInfo(name: 'id', isRequired: true, type: 'String', description: '歌曲ID'),
-    },
-    'userAccount': {},
-    'userDetail': {
-      'uid': ParameterInfo(name: 'uid', isRequired: true, type: 'String', description: '用户ID'),
-    },
-    'userPlaylist': {
-      'uid': ParameterInfo(name: 'uid', isRequired: false, type: 'String', description: '用户ID'),
-      'limit': ParameterInfo(name: 'limit', isRequired: false, type: 'int', description: '限制返回数量'),
-      'offset': ParameterInfo(name: 'offset', isRequired: false, type: 'int', description: '偏移量'),
-    },
-    'userRecord': {
-      'uid': ParameterInfo(name: 'uid', isRequired: false, type: 'String', description: '用户ID'),
-      'type': ParameterInfo(name: 'type', isRequired: false, type: 'int', description: '记录类型 1:最近一周 0:所有时间'),
-    },
-  };
-}
-
 /// 选择API（支持搜索）
 Future<String?> selectApi(Map<String, Map<String, ParameterInfo>> apiInfo) async {
   final apis = apiInfo.keys.toList()..sort();
@@ -250,8 +187,8 @@ void _showSuggestions(List<String> apis, String input) {
 
 /// 获取API参数信息
 Map<String, ParameterInfo> getApiParameters(String apiName) {
-  final apiInfo = getApiInfo();
-  return apiInfo[apiName] ?? <String, ParameterInfo>{};
+  final allApiInfo = ApiInfo.getAllApiInfo();
+  return allApiInfo[apiName] ?? <String, ParameterInfo>{};
 }
 
 /// 收集用户输入的参数
@@ -297,10 +234,30 @@ Future<Map<String, dynamic>> _collectParametersManually(
       final paramName = entry.key;
       final info = entry.value;
       
+      // 自动处理特殊参数
+      if (paramName == 'timestamp') {
+        params[paramName] = DateTime.now().millisecondsSinceEpoch.toString();
+        print('   ⏰ timestamp: 已自动设置');
+        continue;
+      }
+      
+      if (paramName == 'cookie') {
+        if (cookie != null && cookie.isNotEmpty) {
+          print('   🍪 是否使用cookie? (y/n, 默认n):');
+          stdout.write('   > ');
+          final cookieChoice = stdin.readLineSync()?.trim().toLowerCase() ?? '';
+          if (cookieChoice == 'y' || cookieChoice == 'yes') {
+            params[paramName] = cookie;
+            print('   ✅ 已添加cookie');
+          }
+        }
+        continue;
+      }
+      
       while (true) {
         final requiredText = info.isRequired ? ' (必填)' : ' (可选)';
         final typeText = info.type != 'dynamic' ? ' [${info.type}]' : '';
-        final descText = info.description?.isNotEmpty == true ? ' - ${info.description}' : '';
+        final descText = info.description.isNotEmpty ? ' - ${info.description}' : '';
         
         // 为一些参数提供示例值
         final example = getParameterExample(paramName, info.type);
@@ -346,20 +303,6 @@ Future<Map<String, dynamic>> _collectParametersManually(
       }
     }
   }
-  
-  // 询问是否使用cookie
-  if (cookie != null && cookie.isNotEmpty) {
-    print('\n🍪 是否使用cookie? (y/n, 默认n):');
-    stdout.write('> ');
-    final cookieChoice = stdin.readLineSync()?.trim().toLowerCase() ?? '';
-    if (cookieChoice == 'y' || cookieChoice == 'yes') {
-      params['cookie'] = cookie;
-      print('✅ 已添加cookie');
-    }
-  }
-  
-  // 自动添加timestamp
-  params['timestamp'] = DateTime.now().millisecondsSinceEpoch.toString();
   
   return params;
 }
@@ -431,6 +374,35 @@ Future<Map<String, dynamic>> _modifyParameters(
     final paramName = entry.key;
     final info = entry.value;
     final currentValue = params[paramName];
+    
+    // 自动处理特殊参数
+    if (paramName == 'timestamp') {
+      params[paramName] = DateTime.now().millisecondsSinceEpoch.toString();
+      print('   ⏰ timestamp: 已自动更新');
+      continue;
+    }
+    
+    if (paramName == 'cookie') {
+      print('   🍪 cookie [${info.type}] 当前值: ${currentValue != null ? '已设置' : '未设置'}');
+      print('   是否修改cookie设置? (y/n, 默认n):');
+      stdout.write('   > ');
+      final input = stdin.readLineSync()?.trim().toLowerCase() ?? '';
+      if (input == 'y' || input == 'yes') {
+        if (cookie != null && cookie.isNotEmpty) {
+          print('   是否使用cookie? (y/n, 默认n):');
+          stdout.write('   > ');
+          final cookieChoice = stdin.readLineSync()?.trim().toLowerCase() ?? '';
+          if (cookieChoice == 'y' || cookieChoice == 'yes') {
+            params[paramName] = cookie;
+            print('   ✅ 已设置cookie');
+          } else {
+            params.remove(paramName);
+            print('   ❌ 已移除cookie');
+          }
+        }
+      }
+      continue;
+    }
     
     print('   $paramName [${info.type}] 当前值: $currentValue');
     stdout.write('   新值: ');
@@ -779,21 +751,6 @@ class ApiTestRecord {
       response: Map<String, dynamic>.from(json['response']),
     );
   }
-}
-
-/// 参数信息类
-class ParameterInfo {
-  final String name;
-  final bool isRequired;
-  final String type;
-  final String? description;
-  
-  ParameterInfo({
-    required this.name,
-    required this.isRequired,
-    required this.type,
-    this.description,
-  });
 }
 
 /// 加载cookie文件

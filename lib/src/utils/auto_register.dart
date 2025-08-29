@@ -2,7 +2,10 @@
 // 请勿手动编辑此文件，运行 tools/auto_register_modules.dart 重新生成
 
 import 'module_registry.dart';
+import '../modules/album.dart';
+import '../modules/album_detail_dynamic.dart';
 import '../modules/album_sublist.dart';
+import '../modules/api_album_v3_detail.dart';
 import '../modules/login_qr_check.dart';
 import '../modules/login_qr_create.dart';
 import '../modules/login_qr_key.dart';
@@ -12,6 +15,7 @@ import '../modules/logout.dart';
 import '../modules/personalized.dart';
 import '../modules/playlist_detail.dart';
 import '../modules/playlist_track_all.dart';
+import '../modules/recommend_resource.dart';
 import '../modules/recommend_songs.dart';
 import '../modules/search.dart';
 import '../modules/song_detail.dart';
@@ -30,7 +34,10 @@ class AutoRegister {
   static void registerAllModules() {
     if (_registered) return;
     
+    ModuleRegistry.register('album', album);
+    ModuleRegistry.register('albumDetailDynamic', albumDetailDynamic);
     ModuleRegistry.register('albumSublist', albumSublist);
+    ModuleRegistry.register('apiAlbumV3Detail', apiAlbumV3Detail);
     ModuleRegistry.register('loginQrCheck', loginQrCheck);
     ModuleRegistry.register('loginQrCreate', loginQrCreate);
     ModuleRegistry.register('loginQrKey', loginQrKey);
@@ -40,6 +47,7 @@ class AutoRegister {
     ModuleRegistry.register('personalized', personalized);
     ModuleRegistry.register('playlistDetail', playlistDetail);
     ModuleRegistry.register('playlistTrackAll', playlistTrackAll);
+    ModuleRegistry.register('recommendResource', recommendResource);
     ModuleRegistry.register('recommendSongs', recommendSongs);
     ModuleRegistry.register('search', search);
     ModuleRegistry.register('songDetail', songDetail);
@@ -56,7 +64,10 @@ class AutoRegister {
   /// 获取所有已注册的模块名称
   static List<String> getRegisteredModuleNames() {
     return [
+      'album',
+      'albumDetailDynamic',
       'albumSublist',
+      'apiAlbumV3Detail',
       'loginQrCheck',
       'loginQrCreate',
       'loginQrKey',
@@ -66,6 +77,7 @@ class AutoRegister {
       'personalized',
       'playlistDetail',
       'playlistTrackAll',
+      'recommendResource',
       'recommendSongs',
       'search',
       'songDetail',
@@ -79,5 +91,5 @@ class AutoRegister {
   }
   
   /// 获取模块总数
-  static int getModuleCount() => 19;
+  static int getModuleCount() => 23;
 }

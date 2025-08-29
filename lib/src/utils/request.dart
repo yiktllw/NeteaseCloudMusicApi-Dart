@@ -271,8 +271,10 @@ class RequestHelper {
       request.write(body);
 
       final response = await request.close();
-      final responseBody = await response.transform(utf8.decoder).join();
-
+      
+      // 收集响应字节
+      final responseBytes = await response.fold<List<int>>([], (previous, element) => previous..addAll(element));
+      
       final cookies = response.headers['set-cookie']
               ?.map((cookie) =>
                   cookie.replaceAll(RegExp(r'\s*Domain=[^(;|$)]+;*'), ''))
@@ -281,15 +283,41 @@ class RequestHelper {
 
       Map<String, dynamic> responseData;
       try {
-        if (options.eR == true) {
-          // EAPI解密
-          responseData =
-              CryptoHelper.eapiResDecrypt(responseBody.toUpperCase());
+        // 检查是否需要解密响应（如果是EAPI请求且原请求数据中设置了e_r为true）
+        bool needsDecryption = false;
+        if (options.crypto == 'eapi' && options.eR == true) {
+          needsDecryption = true;
+          print('Debug - EAPI decryption needed for encrypted response');
         } else {
+          print('Debug - No decryption needed, crypto=${options.crypto}, e_r=${options.eR}');
+        }
+        
+        if (needsDecryption) {
+          // 将字节转换为十六进制字符串用于解密
+          final hexString = responseBytes.map((byte) => byte.toRadixString(16).padLeft(2, '0')).join().toUpperCase();
+          print('Debug - Hex string for decryption: ${hexString.substring(0, 100)}...(${hexString.length} chars)');
+          responseData = CryptoHelper.eapiResDecrypt(hexString);
+          print('Debug - Decryption successful');
+        } else {
+          // 尝试作为普通JSON处理
+          String responseBody;
+          try {
+            responseBody = utf8.decode(responseBytes);
+          } catch (e) {
+            // 如果UTF-8解码失败，尝试latin1
+            responseBody = latin1.decode(responseBytes);
+          }
           responseData = jsonDecode(responseBody);
         }
       } catch (e) {
-        responseData = {'data': responseBody};
+        // 如果解密失败，回退到原始处理
+        try {
+          final responseBody = utf8.decode(responseBytes);
+          responseData = jsonDecode(responseBody);
+        } catch (e2) {
+          final responseBody = latin1.decode(responseBytes);
+          responseData = {'data': responseBody};
+        }
       }
 
       if (responseData['code'] != null) {
@@ -310,10 +338,23 @@ class RequestHelper {
         'body': responseData,
         'cookie': cookies,
       };
-    } catch (e) {
+    } catch (e, stackTrace) {
+      // 添加详细的错误信息用于调试
+      print('Request error caught: $e');
+      print('Error type: ${e.runtimeType}');
+      print('Stack trace:');
+      final lines = stackTrace.toString().split('\n');
+      for (int i = 0; i < lines.length && i < 10; i++) {
+        print('  $i: ${lines[i]}');
+      }
+      
       return {
         'status': 502,
-        'body': {'code': 502, 'msg': e.toString()},
+        'body': {
+          'code': 502, 
+          'msg': e.toString(),
+          'error_type': e.runtimeType.toString(),
+        },
         'cookie': <String>[],
       };
     }
