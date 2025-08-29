@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'dart:async';
-import 'dart:developer' as dev;
 import 'memory_cache.dart';
 
 /// API缓存，对应原项目的 apicache.js
@@ -26,13 +25,6 @@ class ApiCache {
   };
 
   final Map<String, Timer> _timers = {};
-
-  /// 调试日志
-  void _debug(String message) {
-    if (_globalOptions['debug'] == true) {
-      dev.log('[apicache] $message');
-    }
-  }
 
   /// 判断是否应该缓存响应
   bool _shouldCacheResponse(
@@ -134,7 +126,6 @@ class ApiCache {
         _parseDuration(duration, _globalOptions['defaultDuration'] as int);
 
     if (_globalOptions['enabled'] != true) {
-      _debug('bypass detected, skipping cache.');
       return await next();
     }
 
@@ -144,7 +135,6 @@ class ApiCache {
     // 尝试获取缓存
     final cached = _memCache.getValue(key);
     if (cached != null) {
-      _debug('sending cached version of $key');
       // 从缓存对象中提取实际的数据
       final cacheObject = cached as Map<String, dynamic>;
       final cachedResult = Map<String, dynamic>.from(
@@ -154,7 +144,6 @@ class ApiCache {
     }
 
     // 缓存未命中，执行请求
-    _debug('cache miss for $key');
     final result = await next();
     result['_fromCache'] = false; // 标识非缓存结果
 
@@ -166,7 +155,6 @@ class ApiCache {
         result,
       );
       _cacheResponse(key, cacheObject, durationMs);
-      _debug('cached response for $key');
     }
 
     return result;
@@ -187,7 +175,6 @@ class ApiCache {
   /// 清除缓存
   void clear([String? target, bool isAutomatic = false]) {
     if (target == null) {
-      _debug('clearing entire index');
       _memCache.clear();
       for (final timer in _timers.values) {
         timer.cancel();
@@ -197,9 +184,6 @@ class ApiCache {
       (_index['groups'] as Map<String, List<String>>).clear();
       return;
     }
-
-    _debug(
-        'clearing ${isAutomatic ? "expired" : "cached"} entry for "$target"');
 
     final timer = _timers[target];
     timer?.cancel();

@@ -287,17 +287,12 @@ class RequestHelper {
         bool needsDecryption = false;
         if (options.crypto == 'eapi' && options.eR == true) {
           needsDecryption = true;
-          print('Debug - EAPI decryption needed for encrypted response');
-        } else {
-          print('Debug - No decryption needed, crypto=${options.crypto}, e_r=${options.eR}');
         }
         
         if (needsDecryption) {
           // 将字节转换为十六进制字符串用于解密
           final hexString = responseBytes.map((byte) => byte.toRadixString(16).padLeft(2, '0')).join().toUpperCase();
-          print('Debug - Hex string for decryption: ${hexString.substring(0, 100)}...(${hexString.length} chars)');
           responseData = CryptoHelper.eapiResDecrypt(hexString);
-          print('Debug - Decryption successful');
         } else {
           // 尝试作为普通JSON处理
           String responseBody;
@@ -338,15 +333,7 @@ class RequestHelper {
         'body': responseData,
         'cookie': cookies,
       };
-    } catch (e, stackTrace) {
-      // 添加详细的错误信息用于调试
-      print('Request error caught: $e');
-      print('Error type: ${e.runtimeType}');
-      print('Stack trace:');
-      final lines = stackTrace.toString().split('\n');
-      for (int i = 0; i < lines.length && i < 10; i++) {
-        print('  $i: ${lines[i]}');
-      }
+    } catch (e) {
       
       return {
         'status': 502,
