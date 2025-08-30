@@ -6,6 +6,7 @@ import '../modules/album.dart';
 import '../modules/album_detail_dynamic.dart';
 import '../modules/album_sublist.dart';
 import '../modules/api_album_v3_detail.dart';
+import '../modules/likelist.dart';
 import '../modules/login_qr_check.dart';
 import '../modules/login_qr_create.dart';
 import '../modules/login_qr_key.dart';
@@ -38,6 +39,7 @@ class AutoRegister {
     ModuleRegistry.register('albumDetailDynamic', albumDetailDynamic);
     ModuleRegistry.register('albumSublist', albumSublist);
     ModuleRegistry.register('apiAlbumV3Detail', apiAlbumV3Detail);
+    ModuleRegistry.register('likelist', likelist);
     ModuleRegistry.register('loginQrCheck', loginQrCheck);
     ModuleRegistry.register('loginQrCreate', loginQrCreate);
     ModuleRegistry.register('loginQrKey', loginQrKey);
@@ -68,6 +70,7 @@ class AutoRegister {
       'albumDetailDynamic',
       'albumSublist',
       'apiAlbumV3Detail',
+      'likelist',
       'loginQrCheck',
       'loginQrCreate',
       'loginQrKey',
@@ -91,5 +94,5 @@ class AutoRegister {
   }
   
   /// 获取模块总数
-  static int getModuleCount() => 23;
+  static int getModuleCount() => 24;
 }

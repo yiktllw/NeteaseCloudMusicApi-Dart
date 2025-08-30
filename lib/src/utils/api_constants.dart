@@ -26,8 +26,10 @@ class ApiModules {
   static const String albumDetailDynamic = 'albumDetailDynamic';
   /// 返回用户已收藏的专辑列表 模块
   static const String albumSublist = 'albumSublist';
-  /// 返回手机端专辑详情信息，包含专辑的详细信息和歌曲列表 模块
+  /// 手机端的专辑详情页 模块
   static const String apiAlbumV3Detail = 'apiAlbumV3Detail';
+  /// 返回用户喜欢的歌曲列表 模块
+  static const String likelist = 'likelist';
   /// 二维码登录检测 模块
   static const String loginQrCheck = 'loginQrCheck';
   /// 二维码登录创建 模块
@@ -97,11 +99,18 @@ class ApiInfo {
       'timestamp': ParameterInfo(name: 'timestamp', isRequired: false, type: 'String', description: '时间戳'),
     };
   }
-  /// 返回手机端专辑详情信息，包含专辑的详细信息和歌曲列表 参数信息
+  /// 手机端的专辑详情页 参数信息
   static Map<String, ParameterInfo> apiAlbumV3Detail() {
     return {
       'id': ParameterInfo(name: 'id', isRequired: true, type: 'String', description: 'ID'),
-      'er': ParameterInfo(name: 'er', isRequired: false, type: 'String', description: 'er参数'),
+      'cookie': ParameterInfo(name: 'cookie', isRequired: false, type: 'String', description: 'cookie字符串'),
+      'timestamp': ParameterInfo(name: 'timestamp', isRequired: false, type: 'String', description: '时间戳'),
+    };
+  }
+  /// 返回用户喜欢的歌曲列表 参数信息
+  static Map<String, ParameterInfo> likelist() {
+    return {
+      'uid': ParameterInfo(name: 'uid', isRequired: true, type: 'String', description: '用户ID'),
       'cookie': ParameterInfo(name: 'cookie', isRequired: false, type: 'String', description: 'cookie字符串'),
       'timestamp': ParameterInfo(name: 'timestamp', isRequired: false, type: 'String', description: '时间戳'),
     };
@@ -271,6 +280,7 @@ class ApiInfo {
       'albumDetailDynamic': albumDetailDynamic(),
       'albumSublist': albumSublist(),
       'apiAlbumV3Detail': apiAlbumV3Detail(),
+      'likelist': likelist(),
       'loginQrCheck': loginQrCheck(),
       'loginQrCreate': loginQrCreate(),
       'loginQrKey': loginQrKey(),
@@ -323,12 +333,19 @@ class ApiParams {
     'cookie': cookie,
     'timestamp': timestamp,
   };
-  /// 返回手机端专辑详情信息，包含专辑的详细信息和歌曲列表 参数
+  /// 手机端的专辑详情页 参数
   static Map<String, dynamic> apiAlbumV3Detail({
-    required String id, String? er, String? cookie, String? timestamp,
+    required String id, String? cookie, String? timestamp,
   }) => {
     'id': id,
-    'er': er,
+    'cookie': cookie,
+    'timestamp': timestamp,
+  };
+  /// 返回用户喜欢的歌曲列表 参数
+  static Map<String, dynamic> likelist({
+    required String uid, String? cookie, String? timestamp,
+  }) => {
+    'uid': uid,
     'cookie': cookie,
     'timestamp': timestamp,
   };
@@ -531,15 +548,23 @@ class ApiCaller {
     cookie: cookie,
     timestamp: timestamp,
   ));
-  /// 返回手机端专辑详情信息，包含专辑的详细信息和歌曲列表
+  /// 手机端的专辑详情页
   Future<Map<String, dynamic>> apiAlbumV3Detail({
     required String id,
-    String? er,
     String? cookie,
     String? timestamp,
   }) => _call(ApiModules.apiAlbumV3Detail, ApiParams.apiAlbumV3Detail(
     id: id,
-    er: er,
+    cookie: cookie,
+    timestamp: timestamp,
+  ));
+  /// 返回用户喜欢的歌曲列表
+  Future<Map<String, dynamic>> likelist({
+    required String uid,
+    String? cookie,
+    String? timestamp,
+  }) => _call(ApiModules.likelist, ApiParams.likelist(
+    uid: uid,
     cookie: cookie,
     timestamp: timestamp,
   ));
