@@ -366,7 +366,17 @@ String _generateParamMethod(ModuleInfo module) {
   final paramList = allParams.map((param) {
     final isRequired = module.requiredParameters.contains(param);
     final type = _getParameterType(param);
-    return isRequired ? 'required $type $param' : '$type? $param';
+    
+    if (isRequired) {
+      return 'required $type $param';
+    } else {
+      // dynamic 类型本身已经是可空的，不需要添加 ?
+      if (type == 'dynamic') {
+        return '$type $param';
+      } else {
+        return '$type? $param';
+      }
+    }
   }).toList();
 
   final paramMap = allParams.map((param) => "    '$param': $param,").toList();
@@ -394,7 +404,17 @@ String _generateCallerMethod(ModuleInfo module) {
   final paramList = allParams.map((param) {
     final isRequired = module.requiredParameters.contains(param);
     final type = _getParameterType(param);
-    return isRequired ? 'required $type $param' : '$type? $param';
+    
+    if (isRequired) {
+      return 'required $type $param';
+    } else {
+      // dynamic 类型本身已经是可空的，不需要添加 ?
+      if (type == 'dynamic') {
+        return '$type $param';
+      } else {
+        return '$type? $param';
+      }
+    }
   }).toList();
 
   final paramArgs = allParams.map((param) => '$param: $param').toList();
@@ -412,9 +432,15 @@ String _getParameterType(String param) {
   // 根据参数名推断类型
   if (param.contains('limit') ||
       param.contains('offset') ||
-      param.contains('type') ||
       param.contains('count')) {
     return 'int';
   }
+  
+  // 对于 type 参数，需要根据具体模块来判断
+  // 大部分情况下是动态类型，允许字符串和整数
+  if (param == 'type') {
+    return 'dynamic';
+  }
+  
   return 'String';
 }

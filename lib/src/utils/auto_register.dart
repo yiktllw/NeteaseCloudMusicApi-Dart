@@ -6,6 +6,7 @@ import '../modules/album.dart';
 import '../modules/album_detail_dynamic.dart';
 import '../modules/album_sublist.dart';
 import '../modules/api_album_v3_detail.dart';
+import '../modules/cloudsearch.dart';
 import '../modules/likelist.dart';
 import '../modules/login_qr_check.dart';
 import '../modules/login_qr_create.dart';
@@ -19,6 +20,8 @@ import '../modules/playlist_track_all.dart';
 import '../modules/recommend_resource.dart';
 import '../modules/recommend_songs.dart';
 import '../modules/search.dart';
+import '../modules/search_hot_detail.dart';
+import '../modules/search_suggest.dart';
 import '../modules/song_detail.dart';
 import '../modules/song_url_v1.dart';
 import '../modules/song_wiki_summary.dart';
@@ -39,6 +42,7 @@ class AutoRegister {
     ModuleRegistry.register('albumDetailDynamic', albumDetailDynamic);
     ModuleRegistry.register('albumSublist', albumSublist);
     ModuleRegistry.register('apiAlbumV3Detail', apiAlbumV3Detail);
+    ModuleRegistry.register('cloudsearch', cloudsearch);
     ModuleRegistry.register('likelist', likelist);
     ModuleRegistry.register('loginQrCheck', loginQrCheck);
     ModuleRegistry.register('loginQrCreate', loginQrCreate);
@@ -52,6 +56,8 @@ class AutoRegister {
     ModuleRegistry.register('recommendResource', recommendResource);
     ModuleRegistry.register('recommendSongs', recommendSongs);
     ModuleRegistry.register('search', search);
+    ModuleRegistry.register('searchHotDetail', searchHotDetail);
+    ModuleRegistry.register('searchSuggest', searchSuggest);
     ModuleRegistry.register('songDetail', songDetail);
     ModuleRegistry.register('songUrlV1', songUrlV1);
     ModuleRegistry.register('songWikiSummary', songWikiSummary);
@@ -70,6 +76,7 @@ class AutoRegister {
       'albumDetailDynamic',
       'albumSublist',
       'apiAlbumV3Detail',
+      'cloudsearch',
       'likelist',
       'loginQrCheck',
       'loginQrCreate',
@@ -83,6 +90,8 @@ class AutoRegister {
       'recommendResource',
       'recommendSongs',
       'search',
+      'searchHotDetail',
+      'searchSuggest',
       'songDetail',
       'songUrlV1',
       'songWikiSummary',
@@ -94,5 +103,5 @@ class AutoRegister {
   }
   
   /// 获取模块总数
-  static int getModuleCount() => 24;
+  static int getModuleCount() => 27;
 }

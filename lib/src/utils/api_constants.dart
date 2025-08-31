@@ -28,6 +28,8 @@ class ApiModules {
   static const String albumSublist = 'albumSublist';
   /// 手机端的专辑详情页 模块
   static const String apiAlbumV3Detail = 'apiAlbumV3Detail';
+  /// - offset: 偏移量，默认0 模块
+  static const String cloudsearch = 'cloudsearch';
   /// 返回用户喜欢的歌曲列表 模块
   static const String likelist = 'likelist';
   /// 二维码登录检测 模块
@@ -54,6 +56,10 @@ class ApiModules {
   static const String recommendSongs = 'recommendSongs';
   /// 搜索 模块
   static const String search = 'search';
+  /// 获取热门搜索关键词列表及其详细信息 模块
+  static const String searchHotDetail = 'searchHotDetail';
+  /// - type: 设备类型，'mobile' 或其他（默认为web） 模块
+  static const String searchSuggest = 'searchSuggest';
   /// 歌曲详情 模块
   static const String songDetail = 'songDetail';
   /// 而是采用 standard, exhigh, lossless, hires, jyeffect(高清环绕声), sky(沉浸环绕声), jymaster(超清母带) 进行音质判断 模块
@@ -103,6 +109,17 @@ class ApiInfo {
   static Map<String, ParameterInfo> apiAlbumV3Detail() {
     return {
       'id': ParameterInfo(name: 'id', isRequired: true, type: 'String', description: 'ID'),
+      'cookie': ParameterInfo(name: 'cookie', isRequired: false, type: 'String', description: 'cookie字符串'),
+      'timestamp': ParameterInfo(name: 'timestamp', isRequired: false, type: 'String', description: '时间戳'),
+    };
+  }
+  /// - offset: 偏移量，默认0 参数信息
+  static Map<String, ParameterInfo> cloudsearch() {
+    return {
+      'keywords': ParameterInfo(name: 'keywords', isRequired: false, type: 'String', description: '搜索关键词'),
+      'type': ParameterInfo(name: 'type', isRequired: false, type: 'dynamic', description: '类型'),
+      'limit': ParameterInfo(name: 'limit', isRequired: false, type: 'int', description: '限制返回数量'),
+      'offset': ParameterInfo(name: 'offset', isRequired: false, type: 'int', description: '偏移量'),
       'cookie': ParameterInfo(name: 'cookie', isRequired: false, type: 'String', description: 'cookie字符串'),
       'timestamp': ParameterInfo(name: 'timestamp', isRequired: false, type: 'String', description: '时间戳'),
     };
@@ -205,10 +222,26 @@ class ApiInfo {
   /// 搜索 参数信息
   static Map<String, ParameterInfo> search() {
     return {
-      'type': ParameterInfo(name: 'type', isRequired: false, type: 'int', description: '类型'),
+      'type': ParameterInfo(name: 'type', isRequired: false, type: 'dynamic', description: '类型'),
       'keywords': ParameterInfo(name: 'keywords', isRequired: true, type: 'String', description: '搜索关键词'),
       'limit': ParameterInfo(name: 'limit', isRequired: false, type: 'int', description: '限制返回数量'),
       'offset': ParameterInfo(name: 'offset', isRequired: false, type: 'int', description: '偏移量'),
+      'cookie': ParameterInfo(name: 'cookie', isRequired: false, type: 'String', description: 'cookie字符串'),
+      'timestamp': ParameterInfo(name: 'timestamp', isRequired: false, type: 'String', description: '时间戳'),
+    };
+  }
+  /// 获取热门搜索关键词列表及其详细信息 参数信息
+  static Map<String, ParameterInfo> searchHotDetail() {
+    return {
+      'cookie': ParameterInfo(name: 'cookie', isRequired: false, type: 'String', description: 'cookie字符串'),
+      'timestamp': ParameterInfo(name: 'timestamp', isRequired: false, type: 'String', description: '时间戳'),
+    };
+  }
+  /// - type: 设备类型，'mobile' 或其他（默认为web） 参数信息
+  static Map<String, ParameterInfo> searchSuggest() {
+    return {
+      'keywords': ParameterInfo(name: 'keywords', isRequired: false, type: 'String', description: '搜索关键词'),
+      'type': ParameterInfo(name: 'type', isRequired: true, type: 'dynamic', description: '类型'),
       'cookie': ParameterInfo(name: 'cookie', isRequired: false, type: 'String', description: 'cookie字符串'),
       'timestamp': ParameterInfo(name: 'timestamp', isRequired: false, type: 'String', description: '时间戳'),
     };
@@ -267,7 +300,7 @@ class ApiInfo {
   static Map<String, ParameterInfo> userRecord() {
     return {
       'uid': ParameterInfo(name: 'uid', isRequired: false, type: 'String', description: '用户ID'),
-      'type': ParameterInfo(name: 'type', isRequired: false, type: 'int', description: '类型'),
+      'type': ParameterInfo(name: 'type', isRequired: false, type: 'dynamic', description: '类型'),
       'cookie': ParameterInfo(name: 'cookie', isRequired: false, type: 'String', description: 'cookie字符串'),
       'timestamp': ParameterInfo(name: 'timestamp', isRequired: false, type: 'String', description: '时间戳'),
     };
@@ -280,6 +313,7 @@ class ApiInfo {
       'albumDetailDynamic': albumDetailDynamic(),
       'albumSublist': albumSublist(),
       'apiAlbumV3Detail': apiAlbumV3Detail(),
+      'cloudsearch': cloudsearch(),
       'likelist': likelist(),
       'loginQrCheck': loginQrCheck(),
       'loginQrCreate': loginQrCreate(),
@@ -293,6 +327,8 @@ class ApiInfo {
       'recommendResource': recommendResource(),
       'recommendSongs': recommendSongs(),
       'search': search(),
+      'searchHotDetail': searchHotDetail(),
+      'searchSuggest': searchSuggest(),
       'songDetail': songDetail(),
       'songUrlV1': songUrlV1(),
       'songWikiSummary': songWikiSummary(),
@@ -338,6 +374,17 @@ class ApiParams {
     required String id, String? cookie, String? timestamp,
   }) => {
     'id': id,
+    'cookie': cookie,
+    'timestamp': timestamp,
+  };
+  /// - offset: 偏移量，默认0 参数
+  static Map<String, dynamic> cloudsearch({
+    String? keywords, dynamic type, int? limit, int? offset, String? cookie, String? timestamp,
+  }) => {
+    'keywords': keywords,
+    'type': type,
+    'limit': limit,
+    'offset': offset,
     'cookie': cookie,
     'timestamp': timestamp,
   };
@@ -438,12 +485,28 @@ class ApiParams {
   };
   /// 搜索 参数
   static Map<String, dynamic> search({
-    int? type, required String keywords, int? limit, int? offset, String? cookie, String? timestamp,
+    dynamic type, required String keywords, int? limit, int? offset, String? cookie, String? timestamp,
   }) => {
     'type': type,
     'keywords': keywords,
     'limit': limit,
     'offset': offset,
+    'cookie': cookie,
+    'timestamp': timestamp,
+  };
+  /// 获取热门搜索关键词列表及其详细信息 参数
+  static Map<String, dynamic> searchHotDetail({
+    String? cookie, String? timestamp,
+  }) => {
+    'cookie': cookie,
+    'timestamp': timestamp,
+  };
+  /// - type: 设备类型，'mobile' 或其他（默认为web） 参数
+  static Map<String, dynamic> searchSuggest({
+    String? keywords, required dynamic type, String? cookie, String? timestamp,
+  }) => {
+    'keywords': keywords,
+    'type': type,
     'cookie': cookie,
     'timestamp': timestamp,
   };
@@ -499,7 +562,7 @@ class ApiParams {
   };
   /// 用户听歌记录 参数
   static Map<String, dynamic> userRecord({
-    String? uid, int? type, String? cookie, String? timestamp,
+    String? uid, dynamic type, String? cookie, String? timestamp,
   }) => {
     'uid': uid,
     'type': type,
@@ -555,6 +618,22 @@ class ApiCaller {
     String? timestamp,
   }) => _call(ApiModules.apiAlbumV3Detail, ApiParams.apiAlbumV3Detail(
     id: id,
+    cookie: cookie,
+    timestamp: timestamp,
+  ));
+  /// - offset: 偏移量，默认0
+  Future<Map<String, dynamic>> cloudsearch({
+    String? keywords,
+    dynamic type,
+    int? limit,
+    int? offset,
+    String? cookie,
+    String? timestamp,
+  }) => _call(ApiModules.cloudsearch, ApiParams.cloudsearch(
+    keywords: keywords,
+    type: type,
+    limit: limit,
+    offset: offset,
     cookie: cookie,
     timestamp: timestamp,
   ));
@@ -678,7 +757,7 @@ class ApiCaller {
   ));
   /// 搜索
   Future<Map<String, dynamic>> search({
-    int? type,
+    dynamic type,
     required String keywords,
     int? limit,
     int? offset,
@@ -689,6 +768,26 @@ class ApiCaller {
     keywords: keywords,
     limit: limit,
     offset: offset,
+    cookie: cookie,
+    timestamp: timestamp,
+  ));
+  /// 获取热门搜索关键词列表及其详细信息
+  Future<Map<String, dynamic>> searchHotDetail({
+    String? cookie,
+    String? timestamp,
+  }) => _call(ApiModules.searchHotDetail, ApiParams.searchHotDetail(
+    cookie: cookie,
+    timestamp: timestamp,
+  ));
+  /// - type: 设备类型，'mobile' 或其他（默认为web）
+  Future<Map<String, dynamic>> searchSuggest({
+    String? keywords,
+    required dynamic type,
+    String? cookie,
+    String? timestamp,
+  }) => _call(ApiModules.searchSuggest, ApiParams.searchSuggest(
+    keywords: keywords,
+    type: type,
     cookie: cookie,
     timestamp: timestamp,
   ));
@@ -759,7 +858,7 @@ class ApiCaller {
   /// 用户听歌记录
   Future<Map<String, dynamic>> userRecord({
     String? uid,
-    int? type,
+    dynamic type,
     String? cookie,
     String? timestamp,
   }) => _call(ApiModules.userRecord, ApiParams.userRecord(

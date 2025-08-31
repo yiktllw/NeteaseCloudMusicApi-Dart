@@ -10,6 +10,18 @@ List<ApiTestRecord> testHistory = [];
 Map<String, String> userVariables = {};
 
 void main() async {
+  // 设置终端编码为UTF-8以支持中文输入
+  if (Platform.isWindows) {
+    try {
+      // 在Windows上设置控制台编码为UTF-8
+      Process.runSync('chcp', ['65001'], runInShell: true);
+      stdout.encoding = utf8;
+    } catch (e) {
+      // 如果设置失败，继续执行但可能会有编码问题
+      print('⚠️ 警告：无法设置UTF-8编码，中文输入可能显示异常');
+    }
+  }
+  
   print('=== 网易云音乐API Dart版本 - 交互式测试工具 ===\n');
 
   // 创建API实例
@@ -36,7 +48,7 @@ void main() async {
       print('\n请选择操作 (1-4):');
       stdout.write('> ');
       
-      final choice = stdin.readLineSync()?.trim() ?? '';
+      final choice = readLineWithUtf8() ?? '';
       
       switch (choice) {
         case '1':
@@ -117,7 +129,7 @@ Future<String?> selectApi(Map<String, Map<String, ParameterInfo>> apiInfo) async
   while (true) {
     print('\n🔍 请输入API名称进行搜索 (输入部分名称即可，输入"list"查看所有API，"back"返回):');
     stdout.write('> ');
-    final input = stdin.readLineSync()?.trim() ?? '';
+    final input = readLineWithUtf8() ?? '';
 
     if (input.toLowerCase() == 'back') {
       return null;
@@ -203,7 +215,7 @@ Future<Map<String, dynamic>?> collectParameters(
   print('   3. 返回');
   
   stdout.write('请选择 (1-3): ');
-  final choice = stdin.readLineSync()?.trim() ?? '';
+  final choice = readLineWithUtf8() ?? '';
   
   switch (choice) {
     case '1':
@@ -278,7 +290,7 @@ Future<Map<String, dynamic>> _collectParametersManually(
         }
         
         stdout.write('   > ');
-        final input = stdin.readLineSync()?.trim() ?? '';
+        final input = readLineWithUtf8() ?? '';
         
         if (input.isEmpty) {
           if (info.isRequired) {
@@ -485,7 +497,7 @@ void _displayVariables() {
 Future<void> _addOrModifyVariable() async {
   print('\n➕ 添加/修改变量:');
   stdout.write('变量名: ');
-  final name = stdin.readLineSync()?.trim() ?? '';
+  final name = readLineWithUtf8() ?? '';
   
   if (name.isEmpty) {
     print('❌ 变量名不能为空');
@@ -493,7 +505,7 @@ Future<void> _addOrModifyVariable() async {
   }
   
   stdout.write('变量值: ');
-  final value = stdin.readLineSync()?.trim() ?? '';
+  final value = readLineWithUtf8() ?? '';
   
   if (value.isEmpty) {
     print('❌ 变量值不能为空');
@@ -810,3 +822,25 @@ String formatJsonOutput(dynamic data) {
     return data.toString();
   }
 }
+
+/// 安全读取中文输入
+String? readLineWithUtf8() {
+  try {
+    // 在Windows上使用UTF-8编码读取输入
+    if (Platform.isWindows) {
+      final input = stdin.readLineSync(encoding: utf8);
+      return input?.trim();
+    } else {
+      // 在其他平台上使用默认编码
+      return stdin.readLineSync()?.trim();
+    }
+  } catch (e) {
+    // 如果UTF-8读取失败，回退到默认方式
+    try {
+      return stdin.readLineSync()?.trim();
+    } catch (e2) {
+      print('❌ 输入读取失败: $e2');
+      return null;
+    }
+  }
+} 
